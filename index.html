@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>败犬女主太多了！婚配测试</title>
+  <style>
+    :root{
+      --bg1:#fff4f9;
+      --bg2:#eef4ff;
+      --card:#ffffffee;
+      --text:#2f3342;
+      --sub:#6f7585;
+      --pink:#ff73af;
+      --pink2:#ff9bc8;
+      --blue:#7ea9ff;
+      --blue2:#a9c4ff;
+      --line:#e9edf7;
+      --shadow:0 18px 50px rgba(79, 98, 155, .12);
+      --radius:24px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 0% 0%, #ffd8ea 0, transparent 24%),
+        radial-gradient(circle at 100% 0%, #dce8ff 0, transparent 28%),
+        radial-gradient(circle at 100% 100%, #ffeecf 0, transparent 20%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+    }
+
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:24px;
+    }
+
+    .card{
+      background:var(--card);
+      backdrop-filter: blur(8px);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:auto -80px -80px auto;
+      width:240px;
+      height:240px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,115,175,.12), transparent 70%);
+      pointer-events:none;
+    }
+
+    .screen{display:none;animation:fade .35s ease}
+    .screen.active{display:block}
+
+    @keyframes fade{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:none}
+    }
+
+    .title{
+      margin:0 0 10px;
+      font-size:36px;
+      line-height:1.2;
+      color:#ff5aa0;
+    }
+
+    .subtitle{
+      margin:0 0 18px;
+      font-size:18px;
+      color:#5e6474;
+      line-height:1.8;
+    }
+
+    .small{
+      color:var(--sub);
+      font-size:14px;
+      line-height:1.8;
+    }
+
+    .badge-row,.chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      background:#f4f7ff;
+      border:1px solid #e4ebff;
+      color:#55607c;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.25fr .95fr;
+      gap:24px;
+      align-items:start;
+    }
+
+    .hero-panel{
+      background:linear-gradient(135deg,#fff8fb,#f6f9ff);
+      border:1px solid #edf1fb;
+      border-radius:20px;
+      padding:18px;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .char-mini{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:white;
+      border:1px solid #eef2f9;
+      border-radius:16px;
+      padding:10px;
+    }
+
+    .avatar{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:700;
+      font-size:15px;
+      flex:0 0 auto;
+      box-shadow:0 8px 18px rgba(0,0,0,.08);
+    }
+
+    .char-mini-name{
+      font-size:14px;
+      color:#4b5264;
+      font-weight:600;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:18px;
+    }
+
+    button{
+      border:none;
+      border-radius:16px;
+      padding:14px 20px;
+      font-size:15px;
+      cursor:pointer;
+      transition:.2s ease;
+      font-family:inherit;
+    }
+
+    button:hover{transform:translateY(-1px)}
+    button:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .btn-main{
+      color:white;
+      font-weight:700;
+      background:linear-gradient(90deg,var(--pink),var(--blue));
+      box-shadow:0 12px 28px rgba(122,153,255,.2);
+    }
+
+    .btn-sub{
+      background:#f3f6fc;
+      color:#4f586f;
+      border:1px solid #e7edf8;
+    }
+
+    .progress-wrap{
+      margin-bottom:20px;
+    }
+
+    .progress-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+      color:#707789;
+      font-size:14px;
+    }
+
+    .progress-bar{
+      width:100%;
+      height:12px;
+      border-radius:999px;
+      background:#edf1f8;
+      overflow:hidden;
+    }
+
+    .progress{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#ff89bf,#91b6ff);
+      transition:width .25s ease;
+    }
+
+    .question-card{
+      background:linear-gradient(135deg,#fff8fb,#f7faff);
+      border:1px solid #edf1f8;
+      border-radius:22px;
+      padding:20px;
+    }
+
+    .question-title{
+      margin:0;
+      line-height:1.7;
+      font-size:24px;
+    }
+
+    .question-tip{
+      margin:10px 0 0;
+      color:#8a90a0;
+      font-size:14px;
+    }
+
+    .options{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .option{
+      width:100%;
+      text-align:left;
+      background:white;
+      border:2px solid #edf1f9;
+      border-radius:18px;
+      padding:16px;
+      color:#30384a;
+    }
+
+    .option:hover{
+      border-color:#c9d7ff;
+      background:#f8fbff;
+    }
+
+    .option.selected{
+      border-color:#ff9cc8;
+      background:linear-gradient(135deg,#fff4fa,#f5f9ff);
+      box-shadow:0 8px 20px rgba(255,130,180,.08);
+    }
+
+    .option-title{
+      font-weight:700;
+      margin-bottom:6px;
+      font-size:15px;
+    }
+
+    .option-desc{
+      color:#6f7586;
+      line-height:1.6;
+      font-size:13px;
+    }
+
+    .quiz-actions{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-top:16px;
+      flex-wrap:wrap;
+    }
+
+    .result-top{
+      display:grid;
+      grid-template-columns:220px 1fr;
+      gap:22px;
+      align-items:start;
+    }
+
+    .result-card{
+      background:linear-gradient(135deg,#fff5fa,#f5f9ff);
+      border:1px solid #ecf0f8;
+      border-radius:22px;
+      padding:20px;
+    }
+
+    .result-avatar{
+      width:100%;
+      aspect-ratio:1/1;
+      border-radius:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:800;
+      font-size:56px;
+      letter-spacing:2px;
+      box-shadow:0 18px 36px rgba(0,0,0,.1);
+      margin-bottom:14px;
+    }
+
+    .result-name{
+      font-size:32px;
+      margin:0 0 8px;
+      color:#ff4b98;
+      line-height:1.2;
+    }
+
+    .result-match{
+      display:inline-block;
+      background:#fff;
+      border:1px solid #eceff8;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:14px;
+      color:#56617d;
+      margin-bottom:14px;
+    }
+
+    .result-desc{
+      white-space:pre-line;
+      line-height:1.9;
+      color:#444d63;
+      font-size:15px;
+    }
+
+    .section-title{
+      font-size:18px;
+      margin:0 0 12px;
+      color:#50586c;
+    }
+
+    .rank-list,.traits-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .rank-item,.trait-row{
+      background:white;
+      border:1px solid #edf1f8;
+      border-radius:16px;
+      padding:12px 14px;
+    }
+
+    .rank-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:8px;
+      font-size:14px;
+      align-items:center;
+    }
+
+    .rank-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .rank-num{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      background:#f4f7ff;
+      color:#55627e;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .bar{
+      width:100%;
+      height:8px;
+      border-radius:999px;
+      background:#edf1f8;
+      overflow:hidden;
+    }
+
+    .bar > span{
+      display:block;
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#ff8fbe,#97b8ff);
+      border-radius:999px;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .footer-note{
+      margin-top:16px;
+      font-size:13px;
+      color:#8d93a3;
+      line-height:1.8;
+    }
+
+    .poster-canvas{
+      display:none;
+    }
+
+    @media (max-width: 820px){
+      .hero,.result-top,.two-col{
+        grid-template-columns:1fr;
+      }
+
+      .hero-grid{
+        grid-template-columns:1fr;
+      }
+
+      .title{
+        font-size:30px;
+      }
+
+      .question-title{
+        font-size:21px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <!-- 开始页 -->
+      <section id="start-screen" class="screen active">
+        <div class="hero">
+          <div>
+            <h1 class="title">败犬女主太多了！婚配测试</h1>
+            <p class="subtitle">
+              18 道题，测测你最适合和哪位女角色结婚。<br>
+              这次是更完整的本地成品版：角色更多、结果更细、还能导出海报。
+            </p>
+
+            <div class="badge-row">
+              <span class="chip">本地单文件运行</span>
+              <span class="chip">14 位女角色</span>
+              <span class="chip">18 道题</span>
+              <span class="chip">Top3 排行</span>
+              <span class="chip">结果海报下载</span>
+              <span class="chip">简易 BGM</span>
+            </div>
+
+            <div class="actions">
+              <button id="start-btn" class="btn-main">开始测试</button>
+              <button id="bgm-btn" class="btn-sub">开启 BGM</button>
+            </div>
+
+            <p class="footer-note">
+              说明：本版本采用“性格维度匹配”算法，不是简单的一题对应一个角色。<br>
+              如果你后面想根据更准确的官设继续微调，我还可以再帮你做一版“精修题库”。
+            </p>
+          </div>
+
+          <div class="hero-panel">
+            <h3 class="section-title">当前收录角色</h3>
+            <div class="hero-grid" id="char-preview"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 答题页 -->
+      <section id="quiz-screen" class="screen">
+        <div class="progress-wrap">
+          <div class="progress-top">
+            <div id="progress-text">第 1 题 / 共 18 题</div>
+            <div id="progress-percent">6%</div>
+          </div>
+          <div class="progress-bar">
+            <div id="progress" class="progress"></div>
+          </div>
+        </div>
+
+        <div class="question-card">
+          <h2 class="question-title" id="question-title">题目标题</h2>
+          <p class="question-tip" id="question-tip">请选择最符合你真实倾向的一项。</p>
+          <div class="options" id="options"></div>
+        </div>
+
+        <div class="quiz-actions">
+          <div class="actions">
+            <button id="prev-btn" class="btn-sub">上一题</button>
+            <button id="restart-mid-btn" class="btn-sub">重新开始</button>
+          </div>
+          <button id="next-btn" class="btn-main" disabled>下一题</button>
+        </div>
+      </section>
+
+      <!-- 结果页 -->
+      <section id="result-screen" class="screen">
+        <div class="result-top">
+          <div class="result-card">
+            <div id="result-avatar" class="result-avatar">八</div>
+            <h2 id="result-name" class="result-name">角色名</h2>
+            <div id="result-match" class="result-match">匹配度 92%</div>
+            <div class="chips" id="result-tags"></div>
+          </div>
+
+          <div class="result-card">
+            <h3 class="section-title">结果解析</h3>
+            <div id="result-desc" class="result-desc">结果描述</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="result-card">
+            <h3 class="section-title">你的 Top 3 匹配排行</h3>
+            <div id="rank-list" class="rank-list"></div>
+          </div>
+
+          <div class="result-card">
+            <h3 class="section-title">你的性格倾向</h3>
+            <div id="traits-list" class="traits-list"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="copy-btn" class="btn-sub">复制结果</button>
+          <button id="download-btn" class="btn-main">下载结果海报</button>
+          <button id="restart-btn" class="btn-sub">重新测试</button>
+          <button id="bgm-btn2" class="btn-sub">切换 BGM</button>
+        </div>
+
+        <p class="footer-note">
+          如果你愿意，我下一步还能继续帮你做：<br>
+          1）每个角色加专属图片位；2）换成更像原网站的排版；3）把题目改成你更认可的人设版本。
+        </p>
+      </section>
+
+      <canvas id="poster-canvas" class="poster-canvas" width="1080" height="1600"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const TRAITS = [
+      { key: "warm", label: "温柔治愈" },
+      { key: "lively", label: "活泼热闹" },
+      { key: "direct", label: "直球坦率" },
+      { key: "calm", label: "安静慢热" },
+      { key: "mature", label: "成熟可靠" },
+      { key: "mystic", label: "神秘独特" },
+      { key: "home", label: "家庭感" },
+      { key: "romantic", label: "恋爱甜度" },
+      { key: "logic", label: "理性清醒" },
+      { key: "support", label: "照顾欲/被照顾感" }
+    ];
+
+    const characters = [
+      {
+        id: "ann",
+        name: "八奈见杏菜",
+        short: "八奈",
+        initial: "八",
+        color: "linear-gradient(135deg,#ff87ba,#ffb0d3)",
+        tags: ["热闹", "会聊", "气氛担当", "嘴硬心软"],
+        profile: {
+          warm: 7, lively: 10, direct: 7, calm: 3, mature: 5,
+          mystic: 3, home: 6, romantic: 7, logic: 4, support: 7
+        },
+        desc:
+`你和八奈见杏菜的相性，通常来自“热闹感 + 陪伴感 + 情绪互动”。
+
+你不太适合过于冷淡、机械、没起伏的关系，而更容易被那种会接话、会吐槽、会把日常过得很有存在感的人吸引。
+她适合陪你把普通日子过得不普通：吃饭会更香，聊天会更久，关系会在反复互动里越来越近。
+
+如果和她走进婚姻：
+- 家里不会太无聊
+- 你们会有很多共同日常话题
+- 相处里常常带一点拌嘴感，但温度不会低
+- 很适合“先像朋友，再慢慢变成最亲的人”`
+      },
+      {
+        id: "lemon",
+        name: "烧盐柠檬",
+        short: "柠檬",
+        initial: "柠",
+        color: "linear-gradient(135deg,#ffb24d,#ffd46c)",
+        tags: ["元气", "直率", "行动派", "阳光"],
+        profile: {
+          warm: 6, lively: 10, direct: 10, calm: 2, mature: 5,
+          mystic: 2, home: 5, romantic: 7, logic: 5, support: 6
+        },
+        desc:
+`你和烧盐柠檬的相性来自“爽快 + 直率 + 生活生命力”。
+
+你不太喜欢关系里长期猜来猜去、反复试探，你更适合和那种表达明确、节奏明快、情绪直接的人在一起。
+她会让关系很有活力，很多事情可以马上决定、马上行动，不容易陷入长期内耗。
+
+如果和她走进婚姻：
+- 日常会很有动能
+- 出门、旅行、折腾生活都很合拍
+- 矛盾更偏向直接处理
+- 你们像是能一起把生活越过越亮堂的组合`
+      },
+      {
+        id: "komari",
+        name: "小鞠知花",
+        short: "小鞠",
+        initial: "鞠",
+        color: "linear-gradient(135deg,#8ea7ff,#c7d3ff)",
+        tags: ["慢热", "细腻", "安静", "需要理解"],
+        profile: {
+          warm: 9, lively: 2, direct: 3, calm: 10, mature: 5,
+          mystic: 5, home: 8, romantic: 6, logic: 5, support: 9
+        },
+        desc:
+`你和小鞠知花的相性来自“耐心 + 理解 + 安静的亲密感”。
+
+你更能欣赏那些不那么外放的人。你愿意慢慢相处、慢慢建立信任，也更愿意从细节里确认感情，而不是只看表面热闹。
+她很适合那种愿意认真接住情绪的人，而你正好具备这种倾向。
+
+如果和她走进婚姻：
+- 关系会更安静，但很深
+- 需要时间，却会越来越稳
+- 日常可能不高调，但很有“只有彼此懂”的感觉
+- 更适合长期陪伴型关系`
+      },
+      {
+        id: "kaki",
+        name: "温水佳树",
+        short: "佳树",
+        initial: "佳",
+        color: "linear-gradient(135deg,#7cd4c7,#a8ece3)",
+        tags: ["贴心", "家庭感", "照顾系", "生活向"],
+        profile: {
+          warm: 9, lively: 5, direct: 6, calm: 7, mature: 6,
+          mystic: 2, home: 10, romantic: 6, logic: 5, support: 10
+        },
+        desc:
+`你和温水佳树的相性来自“照顾感 + 家的氛围 + 长久舒适”。
+
+你会很在意生活层面的默契，而不只是恋爱阶段的刺激。你更容易被那种会记住你的习惯、会关心你状态、能把关系落到日常照料里的人打动。
+她代表的是一种很强的“家”的质感。
+
+如果和她走进婚姻：
+- 会很有被惦记的感觉
+- 相处容易形成稳定默契
+- 小事上的照顾会特别多
+- 是很适合把生活一起搭建起来的对象`
+      },
+      {
+        id: "yumeko",
+        name: "志喜屋梦子",
+        short: "梦子",
+        initial: "梦",
+        color: "linear-gradient(135deg,#8e7cff,#c0b7ff)",
+        tags: ["神秘", "独特", "反差", "不好预测"],
+        profile: {
+          warm: 5, lively: 4, direct: 4, calm: 7, mature: 6,
+          mystic: 10, home: 4, romantic: 7, logic: 6, support: 5
+        },
+        desc:
+`你和志喜屋梦子的相性来自“独特吸引力 + 反差感 + 特殊连接”。
+
+你不是只会被传统意义上的“好相处”吸引，你也会被不按套路、带一点难以预测感的人打动。
+你对关系中的独特性有偏好，希望那份连接不是复制粘贴式的，而是只属于你们两个。
+
+如果和她走进婚姻：
+- 日常不会太平
+- 心动经常来自意外反差
+- 需要包容力和理解力
+- 但你们会形成非常私人的相处世界`
+      },
+      {
+        id: "ama",
+        name: "马剃天爱星",
+        short: "爱星",
+        initial: "爱",
+        color: "linear-gradient(135deg,#ff7ca8,#ffc0d4)",
+        tags: ["锋芒", "存在感", "强势魅力", "华丽"],
+        profile: {
+          warm: 5, lively: 7, direct: 8, calm: 3, mature: 7,
+          mystic: 6, home: 4, romantic: 8, logic: 6, support: 5
+        },
+        desc:
+`你和马剃天爱星的相性来自“存在感 + 魅力压迫感 + 强烈心动”。
+
+你对那种气场明显、让人无法忽视的人会有天然注意力。你不排斥关系里有一点张力，甚至会觉得这正是吸引力来源。
+她适合那种能够欣赏耀眼个性，同时又能在关系里保持自我的人。
+
+如果和她走进婚姻：
+- 恋爱感会很强
+- 相处容易有戏剧性和记忆点
+- 彼此需要一定承受强情绪和强存在感的能力
+- 甜的时候会非常甜`
+      },
+      {
+        id: "hibari",
+        name: "放虎原云雀",
+        short: "云雀",
+        initial: "雀",
+        color: "linear-gradient(135deg,#ffa45b,#ffd2a9)",
+        tags: ["轻快", "灵动", "外向", "有感染力"],
+        profile: {
+          warm: 6, lively: 9, direct: 8, calm: 3, mature: 4,
+          mystic: 3, home: 5, romantic: 7, logic: 4, support: 5
+        },
+        desc:
+`你和放虎原云雀的相性来自“轻快感 + 节奏感 + 互动效率”。
+
+你可能不喜欢太拖沓的关系，更偏爱反应快、情绪鲜明、互动有来有回的人。
+她适合那种能跟上节奏、也愿意给回应的人。你们的关系更像是边走边热起来，而不是原地磨蹭。
+
+如果和她走进婚姻：
+- 日常会很鲜活
+- 说话和行动都更有节奏
+- 很少真正冷场
+- 是能把平凡日子点亮的类型`
+      },
+      {
+        id: "koto",
+        name: "月之木古都",
+        short: "古都",
+        initial: "古",
+        color: "linear-gradient(135deg,#7fa4ff,#a8c4ff)",
+        tags: ["成熟", "会安排", "稳重", "可靠"],
+        profile: {
+          warm: 7, lively: 4, direct: 6, calm: 8, mature: 10,
+          mystic: 4, home: 8, romantic: 5, logic: 8, support: 8
+        },
+        desc:
+`你和月之木古都的相性来自“成熟可靠 + 生活秩序 + 长期稳定”。
+
+你欣赏能把事情落到实处的人，也容易被成熟、踏实、能稳住场面的人吸引。
+你不只看短期心动，更在意长期适配性，而她恰恰是那种很适合一起过生活的人。
+
+如果和她走进婚姻：
+- 很有搭档感
+- 生活会有秩序与安全感
+- 很多事不用你独自硬扛
+- 属于越相处越能体现价值的类型`
+      },
+      {
+        id: "riko",
+        name: "白玉莉子",
+        short: "莉子",
+        initial: "莉",
+        color: "linear-gradient(135deg,#ff92bf,#ffd0e2)",
+        tags: ["甜感", "柔软", "恋爱氛围", "亲和"],
+        profile: {
+          warm: 8, lively: 6, direct: 6, calm: 6, mature: 5,
+          mystic: 3, home: 7, romantic: 9, logic: 4, support: 7
+        },
+        desc:
+`你和白玉莉子的相性来自“甜度 + 柔和 + 让人想靠近的亲和感”。
+
+你很重视关系中的情绪温度，也喜欢那种能营造恋爱气氛的人。
+你不一定追求最刺激的关系，但会很在意“和她在一起的时候是不是会自然变温柔”。
+
+如果和她走进婚姻：
+- 关系容易维持甜感
+- 很适合仪式感和日常小惊喜
+- 亲密关系里的氛围很好
+- 是能把生活过得更柔软的类型`
+      },
+      {
+        id: "karen",
+        name: "姬宫华恋",
+        short: "华恋",
+        initial: "华",
+        color: "linear-gradient(135deg,#ff82b5,#ffc0d8)",
+        tags: ["恋爱脑甜度", "直球", "浪漫", "外放"],
+        profile: {
+          warm: 7, lively: 8, direct: 9, calm: 3, mature: 4,
+          mystic: 2, home: 5, romantic: 10, logic: 3, support: 6
+        },
+        desc:
+`你和姬宫华恋的相性来自“高甜 + 直球 + 很有恋爱实感”。
+
+你不喜欢太冷、太淡、太像同事的关系，你更喜欢能够明确感受到喜欢、感受到偏爱、感受到恋爱氛围的人。
+她会让关系的糖分非常明确，也适合那些愿意接受热烈爱意的人。
+
+如果和她走进婚姻：
+- 甜度会很高
+- 喜欢会被直接表达出来
+- 很适合纪念日、仪式感、小浪漫
+- 生活容易保持恋爱中的明亮感`
+      },
+      {
+        id: "chihaya",
+        name: "朝云千早",
+        short: "千早",
+        initial: "千",
+        color: "linear-gradient(135deg,#6e89ff,#b2c2ff)",
+        tags: ["理性", "有主见", "清醒", "边界感"],
+        profile: {
+          warm: 5, lively: 3, direct: 7, calm: 8, mature: 9,
+          mystic: 4, home: 6, romantic: 4, logic: 10, support: 6
+        },
+        desc:
+`你和朝云千早的相性来自“理性沟通 + 尊重边界 + 长期主义”。
+
+你不太吃过度情绪化、反复拉扯的关系。你希望关系是清楚、稳定、有判断力的，而她很符合这种方向。
+你更看重“能不能长久舒服地相处”，而不只是瞬间的强烈起伏。
+
+如果和她走进婚姻：
+- 沟通效率高
+- 彼此边界更清楚
+- 关系不一定黏，但很稳
+- 非常适合长期经营型伴侣关系`
+      },
+      {
+        id: "konami",
+        name: "甘夏古奈美",
+        short: "古奈美",
+        initial: "甘",
+        color: "linear-gradient(135deg,#ffc86b,#ffe3a6)",
+        tags: ["柔和", "可亲", "阳光温度", "顺滑好相处"],
+        profile: {
+          warm: 8, lively: 7, direct: 6, calm: 5, mature: 5,
+          mystic: 2, home: 7, romantic: 7, logic: 4, support: 7
+        },
+        desc:
+`你和甘夏古奈美的相性来自“温暖明亮 + 好相处 + 轻盈舒适”。
+
+你想要的不是那种时刻绷紧的关系，而是相处起来舒服、自然、没有太强负担的人。
+她像是一种很柔和的光，不会过分强势，却能持续提供稳定的好感和亲和力。
+
+如果和她走进婚姻：
+- 相处摩擦感相对较低
+- 气氛通常轻松
+- 容易形成日常中的温柔默契
+- 是适合慢慢把幸福铺开的类型`
+      },
+      {
+        id: "sayo",
+        name: "小拔小夜",
+        short: "小夜",
+        initial: "夜",
+        color: "linear-gradient(135deg,#7f6fff,#b6adff)",
+        tags: ["冷感", "个性", "观察型", "距离美"],
+        profile: {
+          warm: 4, lively: 3, direct: 5, calm: 9, mature: 7,
+          mystic: 8, home: 4, romantic: 5, logic: 7, support: 4
+        },
+        desc:
+`你和小拔小夜的相性来自“距离感魅力 + 清冷感 + 慢慢靠近”。
+
+你对太模板化的热情未必买账，反而会被带一点距离、需要慢慢理解的人吸引。
+你愿意给关系时间，也欣赏那种不把一切都铺开在表面上的个性。
+
+如果和她走进婚姻：
+- 关系节奏偏慢
+- 情绪表达可能更克制
+- 但建立起信任后会很稳
+- 适合偏内敛、偏深层连接的伴侣模式`
+      },
+      {
+        id: "asami",
+        name: "权藤亚沙美",
+        short: "亚沙美",
+        initial: "亚",
+        color: "linear-gradient(135deg,#56c0ff,#a6e1ff)",
+        tags: ["知性", "现实感", "平衡", "稳当"],
+        profile: {
+          warm: 6, lively: 4, direct: 6, calm: 7, mature: 8,
+          mystic: 3, home: 7, romantic: 5, logic: 8, support: 7
+        },
+        desc:
+`你和权藤亚沙美的相性来自“平衡感 + 稳当 + 现实层面的适配”。
+
+你不是只想谈一段好看的恋爱，你也在意价值观、节奏、生活方式是不是能对上。
+她的魅力通常不在极端戏剧性，而在于：真的适合一起过日子，也适合一起做决定。
+
+如果和她走进婚姻：
+- 实际层面会很省心
+- 很适合共同规划生活
+- 彼此不需要过度表演
+- 稳定与默契是关系中的核心价值`
+      }
+    ];
+
+    const questions = [
+      {
+        title: "1. 你理想中的约会，更像哪一种？",
+        tip: "选最接近你真实偏好的，不要选“看起来更正确”的。",
+        options: [
+          { title: "一边吃一边聊，能从白天说到晚上", desc: "重视互动感、热闹感和一起消磨时间的快乐", effect: { lively: 2, warm: 1, romantic: 1 } },
+          { title: "去户外、去逛、去能大量活动的地方", desc: "喜欢有行动力、节奏快、身体力行的相处", effect: { lively: 2, direct: 1 } },
+          { title: "找个安静角落，哪怕不说太多也舒服", desc: "偏好安静、慢热、低噪音关系", effect: { calm: 2, warm: 1 } },
+          { title: "行程安排清晰、节奏稳当、有点成熟感", desc: "看重可靠和秩序，不喜欢太乱", effect: { mature: 2, logic: 1 } }
+        ]
+      },
+      {
+        title: "2. 你最容易被怎样的人吸引？",
+        tip: "不是“理应喜欢”，而是“你真的会心动”。",
+        options: [
+          { title: "会接话、会活跃气氛、和她在一起不会无聊", desc: "喜欢互动密度高的人", effect: { lively: 2, warm: 1 } },
+          { title: "想法和情绪都比较直接，不怎么拐弯", desc: "讨厌猜来猜去", effect: { direct: 2 } },
+          { title: "慢热安静，需要你耐心去了解", desc: "你会被细水长流打动", effect: { calm: 2, support: 1 } },
+          { title: "很特别，有一点捉摸不透", desc: "你对神秘和反差有偏好", effect: { mystic: 2, romantic: 1 } }
+        ]
+      },
+      {
+        title: "3. 如果对方情绪低落，你更倾向怎么陪她？",
+        tip: "这题测你对关系中的照顾方式。",
+        options: [
+          { title: "先带她吃点好吃的，别让气氛太沉", desc: "用轻松和陪伴缓冲情绪", effect: { warm: 2, lively: 1 } },
+          { title: "拉她出去走走，别一直闷着", desc: "通过行动帮助恢复状态", effect: { direct: 1, lively: 2 } },
+          { title: "安静陪着，等她准备好再说", desc: "给空间也给陪伴", effect: { calm: 2, support: 2 } },
+          { title: "先帮她梳理问题，再看怎么解决", desc: "情绪之外也重视结构化处理", effect: { logic: 2, mature: 1 } }
+        ]
+      },
+      {
+        title: "4. 你更喜欢怎样的恋爱推进节奏？",
+        tip: "选最像你真实关系模式的一项。",
+        options: [
+          { title: "像朋友一样自然升温", desc: "日常陪伴比突袭式告白更有效", effect: { warm: 1, home: 1, lively: 1 } },
+          { title: "有感觉就主动靠近，不想错过", desc: "你认可直球和行动", effect: { direct: 2, romantic: 1 } },
+          { title: "先建立信任，再慢慢靠近", desc: "慢热但稳定", effect: { calm: 2, support: 1 } },
+          { title: "不一定按常规来，独特一点更打动我", desc: "你会被不套路的关系吸引", effect: { mystic: 2, romantic: 1 } }
+        ]
+      },
+      {
+        title: "5. 你更在意另一半哪项能力？",
+        tip: "不是最强，而是对你最重要。",
+        options: [
+          { title: "能给我情绪价值，和她在一起心会变软", desc: "你重视陪伴质感", effect: { warm: 2, support: 1 } },
+          { title: "行动力强，很多事说走就走", desc: "你喜欢效率和执行力", effect: { lively: 1, direct: 2 } },
+          { title: "很细腻，会注意到我没说出口的情绪", desc: "你重视深层理解", effect: { support: 2, calm: 1 } },
+          { title: "成熟、稳重、能把很多事安排清楚", desc: "你偏长期搭档型", effect: { mature: 2, logic: 1 } }
+        ]
+      },
+      {
+        title: "6. 发生矛盾后，你希望关系怎么修复？",
+        tip: "这题很影响最终匹配。",
+        options: [
+          { title: "找机会重新搭话，别一直僵着", desc: "轻微别扭可以靠互动融化", effect: { lively: 1, warm: 1, romantic: 1 } },
+          { title: "直接说开，别拖", desc: "你讨厌内耗", effect: { direct: 2, logic: 1 } },
+          { title: "先给彼此一点空间，再认真谈", desc: "你认可情绪缓冲", effect: { calm: 2, mature: 1 } },
+          { title: "最好从根源上把问题处理掉", desc: "你更偏向结构化沟通", effect: { logic: 2, mature: 1 } }
+        ]
+      },
+      {
+        title: "7. 你理想中的婚后日常是什么样？",
+        tip: "别选最浪漫，选最想长期过的。",
+        options: [
+          { title: "家里常常很热闹，有聊不完的小事", desc: "你需要关系存在感", effect: { lively: 2, home: 1 } },
+          { title: "周末经常出门，到处走走看看", desc: "你想把日子过得有活力", effect: { lively: 2, direct: 1 } },
+          { title: "哪怕各做各的，也有安稳陪伴感", desc: "你重视静态默契", effect: { calm: 2, home: 1 } },
+          { title: "像搭档一样，把生活经营得井井有条", desc: "你想要可持续的秩序感", effect: { mature: 2, logic: 1, home: 1 } }
+        ]
+      },
+      {
+        title: "8. 你对“可爱”的定义更偏向哪种？",
+        tip: "本质是在测你对魅力类型的偏好。",
+        options: [
+          { title: "反应很多、会闹、会吐槽", desc: "外放型可爱", effect: { lively: 2 } },
+          { title: "开朗明亮，笑起来特别有感染力", desc: "阳光型可爱", effect: { lively: 1, direct: 1, warm: 1 } },
+          { title: "话不多，但细节动作很戳人", desc: "安静型可爱", effect: { calm: 2, warm: 1 } },
+          { title: "气质很特别，越看越上头", desc: "神秘型可爱", effect: { mystic: 2, romantic: 1 } }
+        ]
+      },
+      {
+        title: "9. 如果去旅行，你更想和怎样的人同行？",
+        tip: "这题很能看出长期相处偏好。",
+        options: [
+          { title: "一路上聊天吐槽，完全不怕冷场", desc: "你重视旅途中的互动密度", effect: { lively: 2, warm: 1 } },
+          { title: "说走就走，玩尽兴最重要", desc: "你更吃行动派", effect: { direct: 2, lively: 1 } },
+          { title: "行程别太满，舒服比打卡重要", desc: "你更吃松弛感", effect: { calm: 2, home: 1 } },
+          { title: "提前做好攻略，省心最重要", desc: "你重视安排能力", effect: { logic: 2, mature: 1 } }
+        ]
+      },
+      {
+        title: "10. 你对“撒娇”这件事的态度是？",
+        tip: "不是道德判断，只是偏好判断。",
+        options: [
+          { title: "嘴上会嫌，但其实容易心软", desc: "你吃一点俏皮互动", effect: { warm: 1, romantic: 1, lively: 1 } },
+          { title: "挺好，甜一点我不介意", desc: "你接受明显的恋爱感", effect: { romantic: 2 } },
+          { title: "只要是真心的，我会很认真回应", desc: "你更在乎情感真实性", effect: { support: 2, warm: 1 } },
+          { title: "我更喜欢克制、不过度依赖的表达", desc: "你偏边界清晰", effect: { logic: 1, mature: 1, calm: 1 } }
+        ]
+      },
+      {
+        title: "11. 什么样的反差最让你心动？",
+        tip: "这题主要测你的“反差嗜好”。",
+        options: [
+          { title: "平时很会闹，认真起来却很真", desc: "你喜欢热闹里藏着真诚", effect: { lively: 1, warm: 2 } },
+          { title: "平时大大咧咧，关键时刻很可靠", desc: "你喜欢行动型反差", effect: { direct: 1, mature: 2 } },
+          { title: "平时安静内敛，但只对你显露依赖", desc: "你喜欢专属感", effect: { calm: 2, support: 2 } },
+          { title: "表面难懂，深入了解后非常特别", desc: "你吃神秘系深挖", effect: { mystic: 2, romantic: 1 } }
+        ]
+      },
+      {
+        title: "12. 如果另一半比你更能干，你会怎么想？",
+        tip: "这题测你对关系角色分工的舒适度。",
+        options: [
+          { title: "挺好，相处轻松就行", desc: "你没那么执着于主导权", effect: { warm: 1, home: 1 } },
+          { title: "很好，互相带着往前走", desc: "你喜欢高活力组合", effect: { direct: 1, lively: 1, mature: 1 } },
+          { title: "只要她不会让我有压力就行", desc: "你很在意照顾感和安全感", effect: { support: 2, calm: 1 } },
+          { title: "我会欣赏成熟可靠的人", desc: "你天然偏向成熟型对象", effect: { mature: 2, logic: 1 } }
+        ]
+      },
+      {
+        title: "13. 你更重视恋爱中的什么？",
+        tip: "尽量选一个最核心的。",
+        options: [
+          { title: "相处时开心，有来有回", desc: "互动密度优先", effect: { lively: 2, warm: 1 } },
+          { title: "坦率真实，不猜来猜去", desc: "明确表达优先", effect: { direct: 2, logic: 1 } },
+          { title: "被理解、被认真对待", desc: "深度共情优先", effect: { support: 2, warm: 1 } },
+          { title: "尊重边界，长期稳定", desc: "长线适配优先", effect: { mature: 1, logic: 2, calm: 1 } }
+        ]
+      },
+      {
+        title: "14. 你更喜欢哪种“表达喜欢”的方式？",
+        tip: "你吃哪一类表白/示好最明显。",
+        options: [
+          { title: "嘴上绕一点，但行动会暴露", desc: "你喜欢藏不住的在意", effect: { warm: 2, lively: 1 } },
+          { title: "直接说出口，喜欢就让你知道", desc: "你吃直球", effect: { direct: 2, romantic: 1 } },
+          { title: "不太说，但会默默靠近你", desc: "你吃温吞的真心", effect: { calm: 2, support: 1 } },
+          { title: "方式独特，让你忘不掉", desc: "你吃记忆点和反常规", effect: { mystic: 2, romantic: 1 } }
+        ]
+      },
+      {
+        title: "15. 你理想中的家庭氛围更偏向？",
+        tip: "这题很影响婚后型角色的匹配。",
+        options: [
+          { title: "轻松热闹，常常边吃边聊", desc: "你想要生活气和互动感", effect: { home: 1, lively: 2 } },
+          { title: "健康阳光，周末常一起出门", desc: "你喜欢有活力的伴侣生活", effect: { lively: 2, direct: 1 } },
+          { title: "平静柔和，彼此会互相照顾", desc: "你更偏温柔陪伴", effect: { home: 2, support: 2 } },
+          { title: "有秩序有计划，很多事都心里有数", desc: "你吃稳定和可控", effect: { logic: 2, mature: 2, home: 1 } }
+        ]
+      },
+      {
+        title: "16. 让你心动的瞬间更像哪种？",
+        tip: "这题测你的‘触发点’。",
+        options: [
+          { title: "她和我聊着聊着，突然就觉得离不开了", desc: "日常互动中升温", effect: { lively: 1, warm: 2 } },
+          { title: "她很主动，让我一下子感到被选中", desc: "你吃热烈偏爱", effect: { direct: 2, romantic: 1 } },
+          { title: "她安静地记住了我的某个小习惯", desc: "你吃细节照顾", effect: { support: 2, home: 1 } },
+          { title: "她露出和平时不同的一面", desc: "你吃反差与神秘", effect: { mystic: 2, romantic: 1 } }
+        ]
+      },
+      {
+        title: "17. 你理想中的伴侣，更像哪一种？",
+        tip: "接近婚配核心判断。",
+        options: [
+          { title: "会陪我闹，也懂我情绪", desc: "互动和陪伴并重", effect: { lively: 1, warm: 2, support: 1 } },
+          { title: "开朗坦率，和她在一起很有生命力", desc: "你要的是鲜活的人", effect: { direct: 1, lively: 2 } },
+          { title: "温柔细心，有点让人想保护", desc: "你偏好柔软型羁绊", effect: { calm: 1, support: 2, warm: 1 } },
+          { title: "成熟知性，有自己的原则和节奏", desc: "你偏长期适配型", effect: { mature: 2, logic: 2 } }
+        ]
+      },
+      {
+        title: "18. 如果把婚姻比作一种感觉，你最想要哪种？",
+        tip: "最后一题，选你最想长期拥有的状态。",
+        options: [
+          { title: "像每天都能一起笑出来的关系", desc: "你最想要活着的互动感", effect: { lively: 2, warm: 1 } },
+          { title: "像并肩奔跑，很有生命力的关系", desc: "你偏行动共同体", effect: { direct: 1, lively: 2, mature: 1 } },
+          { title: "像夜里一直亮着的一盏灯，安静但安心", desc: "你偏安稳陪伴", effect: { calm: 2, support: 1, home: 1 } },
+          { title: "像成熟稳固的长期契约，越久越可靠", desc: "你偏秩序型长期关系", effect: { mature: 2, logic: 2, home: 1 } }
+        ]
+      }
+    ];
+
+    let currentQuestion = 0;
+    let answers = new Array(questions.length).fill(null);
+    let bgmRunning = false;
+    let audioCtx = null;
+    let bgmTimer = null;
+
+    const startScreen = document.getElementById("start-screen");
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+
+    const startBtn = document.getElementById("start-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const restartMidBtn = document.getElementById("restart-mid-btn");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const copyBtn = document.getElementById("copy-btn");
+    const downloadBtn = document.getElementById("download-btn");
+    const bgmBtn = document.getElementById("bgm-btn");
+    const bgmBtn2 = document.getElementById("bgm-btn2");
+
+    const progressText = document.getElementById("progress-text");
+    const progressPercent = document.getElementById("progress-percent");
+    const progressBar = document.getElementById("progress");
+    const questionTitle = document.getElementById("question-title");
+    const questionTip = document.getElementById("question-tip");
+    const optionsBox = document.getElementById("options");
+
+    const resultAvatar = document.getElementById("result-avatar");
+    const resultName = document.getElementById("result-name");
+    const resultMatch = document.getElementById("result-match");
+    const resultTags = document.getElementById("result-tags");
+    const resultDesc = document.getElementById("result-desc");
+    const rankList = document.getElementById("rank-list");
+    const traitsList = document.getElementById("traits-list");
+    const charPreview = document.getElementById("char-preview");
+    const posterCanvas = document.getElementById("poster-canvas");
+
+    function showScreen(target){
+      [startScreen, quizScreen, resultScreen].forEach(s=>s.classList.remove("active"));
+      target.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function initPreview(){
+      charPreview.innerHTML = "";
+      characters.forEach(c=>{
+        const div = document.createElement("div");
+        div.className = "char-mini";
+        div.innerHTML = `
+          <div class="avatar" style="background:${c.color}">${c.initial}</div>
+          <div class="char-mini-name">${c.name}</div>
+        `;
+        charPreview.appendChild(div);
+      });
+    }
+
+    function startQuiz(){
+      currentQuestion = 0;
+      answers = new Array(questions.length).fill(null);
+      showScreen(quizScreen);
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      const q = questions[currentQuestion];
+      questionTitle.textContent = q.title;
+      questionTip.textContent = q.tip || "请选择最符合你的一项。";
+
+      const percent = Math.round(((currentQuestion + 1) / questions.length) * 100);
+      progressText.textContent = `第 ${currentQuestion + 1} 题 / 共 ${questions.length} 题`;
+      progressPercent.textContent = `${percent}%`;
+      progressBar.style.width = `${percent}%`;
+
+      optionsBox.innerHTML = "";
+      q.options.forEach((opt, idx)=>{
+        const btn = document.createElement("button");
+        btn.className = "option";
+        if (answers[currentQuestion] === idx) btn.classList.add("selected");
+        btn.innerHTML = `
+          <div class="option-title">${String.fromCharCode(65 + idx)}. ${opt.title}</div>
+          <div class="option-desc">${opt.desc}</div>
+        `;
+        btn.addEventListener("click", ()=>{
+          answers[currentQuestion] = idx;
+          renderQuestion();
+        });
+        optionsBox.appendChild(btn);
+      });
+
+      prevBtn.disabled = currentQuestion === 0;
+      nextBtn.disabled = answers[currentQuestion] === null;
+      nextBtn.textContent = currentQuestion === questions.length - 1 ? "查看结果" : "下一题";
+    }
+
+    function getUserTraitScores(){
+      const totals = {};
+      TRAITS.forEach(t => totals[t.key] = 0);
+
+      answers.forEach((answerIdx, qIdx)=>{
+        if (answerIdx === null) return;
+        const effect = questions[qIdx].options[answerIdx].effect;
+        Object.keys(effect).forEach(key=>{
+          totals[key] += effect[key];
+        });
+      });
+
+      return totals;
+    }
+
+    function calcRanking(){
+      const user = getUserTraitScores();
+      const maxUser = Math.max(...Object.values(user), 1);
+
+      const ranking = characters.map(char=>{
+        const diffs = TRAITS.map(t=>{
+          const u = user[t.key] || 0;
+          const c = char.profile[t.key] || 0;
+          return 10 - Math.abs(c - Math.min(10, Math.round((u / maxUser) * 10)));
+        });
+
+        const weighted =
+          diffs.reduce((a,b)=>a+b,0) / diffs.length * 10;
+
+        const boost =
+          ((user.home || 0) * char.profile.home * 0.10) +
+          ((user.romantic || 0) * char.profile.romantic * 0.06) +
+          ((user.support || 0) * char.profile.support * 0.08) / 10;
+
+        const score = weighted + boost;
+        return {
+          ...char,
+          rawScore: score
+        };
+      }).sort((a,b)=>b.rawScore - a.rawScore);
+
+      const max = ranking[0].rawScore || 1;
+      ranking.forEach(item=>{
+        item.match = Math.max(55, Math.min(99, Math.round(item.rawScore / max * 100)));
+      });
+
+      return { ranking, user };
+    }
+
+    function topTraitKeys(user){
+      return Object.entries(user)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,4)
+        .map(([k])=>k);
+    }
+
+    function showResult(){
+      const { ranking, user } = calcRanking();
+      const winner = ranking[0];
+
+      resultAvatar.textContent = winner.initial;
+      resultAvatar.style.background = winner.color;
+      resultName.textContent = winner.name;
+      resultMatch.textContent = `匹配度 ${winner.match}%`;
+      resultDesc.textContent = winner.desc;
+
+      resultTags.innerHTML = "";
+      winner.tags.forEach(tag=>{
+        const span = document.createElement("span");
+        span.className = "chip";
+        span.textContent = tag;
+        resultTags.appendChild(span);
+      });
+
+      rankList.innerHTML = "";
+      ranking.slice(0,3).forEach((item, idx)=>{
+        const row = document.createElement("div");
+        row.className = "rank-item";
+        row.innerHTML = `
+          <div class="rank-head">
+            <div class="rank-left">
+              <div class="rank-num">${idx+1}</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="avatar" style="width:30px;height:30px;border-radius:10px;background:${item.color};font-size:12px">${item.initial}</div>
+                <strong>${item.name}</strong>
+              </div>
+            </div>
+            <div>${item.match}%</div>
+          </div>
+          <div class="bar"><span style="width:${item.match}%"></span></div>
+        `;
+        rankList.appendChild(row);
+      });
+
+      traitsList.innerHTML = "";
+      const traitEntries = Object.entries(user)
+        .sort((a,b)=>b[1]-a[1]);
+
+      const maxTrait = traitEntries[0]?.[1] || 1;
+      traitEntries.slice(0,6).forEach(([key,val])=>{
+        const label = TRAITS.find(t=>t.key===key)?.label || key;
+        const pct = Math.round(val / maxTrait * 100);
+        const row = document.createElement("div");
+        row.className = "trait-row";
+        row.innerHTML = `
+          <div class="rank-head" style="margin-bottom:8px">
+            <div><strong>${label}</strong></div>
+            <div>${pct}%</div>
+          </div>
+          <div class="bar"><span style="width:${pct}%"></span></div>
+        `;
+        traitsList.appendChild(row);
+      });
+
+      showScreen(resultScreen);
+    }
+
+    function nextStep(){
+      if (answers[currentQuestion] === null) return;
+      if (currentQuestion === questions.length - 1){
+        showResult();
+        return;
+      }
+      currentQuestion++;
+      renderQuestion();
+    }
+
+    function prevStep(){
+      if (currentQuestion === 0) return;
+      currentQuestion--;
+      renderQuestion();
+    }
+
+    function restartAll(){
+      if (confirm("确定重新开始测试吗？当前作答会清空。")) {
+        startQuiz();
+      }
+    }
+
+    function buildResultText(){
+      const { ranking, user } = calcRanking();
+      const winner = ranking[0];
+      const topTraits = topTraitKeys(user).map(k => TRAITS.find(t=>t.key===k)?.label || k).join("、");
+      const top3 = ranking.slice(0,3).map((r,i)=>`${i+1}. ${r.name}（${r.match}%）`).join("\n");
+
+      return `【败犬女主太多了！婚配测试结果】
+
+你的结果：${winner.name}
+匹配度：${winner.match}%
+你的倾向：${topTraits}
+
+Top3：
+${top3}
+
+解析：
+${winner.desc}`;
+    }
+
+    async function copyResult(){
+      try{
+        await navigator.clipboard.writeText(buildResultText());
+        alert("结果已复制到剪贴板");
+      }catch(e){
+        alert("复制失败，你可以手动复制页面文字");
+      }
+    }
+
+    function roundedRect(ctx, x, y, w, h, r){
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.arcTo(x+w, y, x+w, y+h, r);
+      ctx.arcTo(x+w, y+h, x, y+h, r);
+      ctx.arcTo(x, y+h, x, y, r);
+      ctx.arcTo(x, y, x+w, y, r);
+      ctx.closePath();
+    }
+
+    function downloadPoster(){
+      const { ranking, user } = calcRanking();
+      const winner = ranking[0];
+      const ctx = posterCanvas.getContext("2d");
+
+      ctx.clearRect(0,0,posterCanvas.width,posterCanvas.height);
+
+      const grad = ctx.createLinearGradient(0,0,1080,1600);
+      grad.addColorStop(0,"#fff3f8");
+      grad.addColorStop(.5,"#f6f8ff");
+      grad.addColorStop(1,"#eef4ff");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,1080,1600);
+
+      ctx.fillStyle = "rgba(255, 130, 180, .15)";
+      ctx.beginPath(); ctx.arc(140, 140, 180, 0, Math.PI*2); ctx.fill();
+
+      ctx.fillStyle = "rgba(126, 169, 255, .14)";
+      ctx.beginPath(); ctx.arc(930, 220, 200, 0, Math.PI*2); ctx.fill();
+
+      ctx.fillStyle = "#ff5aa0";
+      ctx.font = "bold 56px Microsoft YaHei";
+      ctx.fillText("败犬女主太多了！婚配测试", 90, 120);
+
+      ctx.fillStyle = "#5d6577";
+      ctx.font = "28px Microsoft YaHei";
+      ctx.fillText("你的结果海报", 90, 170);
+
+      roundedRect(ctx, 80, 240, 920, 1220, 42);
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      ctx.fill();
+
+      const avatarGrad = ctx.createLinearGradient(140,320,380,560);
+      avatarGrad.addColorStop(0, winner.color.match(/#(?:[0-9a-fA-F]{3}){1,2}/g)?.[0] || "#ff87ba");
+      avatarGrad.addColorStop(1, winner.color.match(/#(?:[0-9a-fA-F]{3}){1,2}/g)?.[1] || "#a9c4ff");
+      ctx.fillStyle = avatarGrad;
+      roundedRect(ctx, 130, 300, 280, 280, 34);
+      ctx.fill();
+
+      ctx.fillStyle = "white";
+      ctx.font = "bold 128px Microsoft YaHei";
+      ctx.textAlign = "center";
+      ctx.fillText(winner.initial, 270, 475);
+      ctx.textAlign = "left";
+
+      ctx.fillStyle = "#ff4f99";
+      ctx.font = "bold 62px Microsoft YaHei";
+      ctx.fillText(winner.name, 460, 390);
+
+      ctx.fillStyle = "#55607a";
+      ctx.font = "28px Microsoft YaHei";
+      ctx.fillText(`匹配度：${winner.match}%`, 460, 450);
+
+      const topTraits = topTraitKeys(user).map(k => TRAITS.find(t=>t.key===k)?.label || k);
+      ctx.font = "24px Microsoft YaHei";
+      ctx.fillText(`你的倾向：${topTraits.join(" / ")}`, 460, 505);
+
+      let y = 650;
+      ctx.fillStyle = "#4a5368";
+      ctx.font = "bold 34px Microsoft YaHei";
+      ctx.fillText("结果解析", 130, y);
+      y += 56;
+
+      ctx.font = "26px Microsoft YaHei";
+      const lines = wrapText(ctx, winner.desc.replace(/\n/g, " "), 130, y, 820, 42);
+      y += lines * 42 + 40;
+
+      ctx.font = "bold 34px Microsoft YaHei";
+      ctx.fillText("Top 3 排行", 130, y);
+      y += 36;
+
+      ranking.slice(0,3).forEach((r, i)=>{
+        y += 56;
+        ctx.fillStyle = "#697389";
+        ctx.font = "28px Microsoft YaHei";
+        ctx.fillText(`${i+1}. ${r.name}`, 130, y);
+        ctx.fillStyle = "#ff5aa0";
+        ctx.fillText(`${r.match}%`, 860, y);
+      });
+
+      ctx.fillStyle = "#8c93a2";
+      ctx.font = "24px Microsoft YaHei";
+      ctx.fillText("本海报由本地单文件测试页生成", 130, 1390);
+
+      const link = document.createElement("a");
+      link.download = `婚配测试结果-${winner.name}.png`;
+      link.href = posterCanvas.toDataURL("image/png");
+      link.click();
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const chars = text.split('');
+      let line = '';
+      let lineCount = 0;
+      for (let n = 0; n < chars.length; n++) {
+        const testLine = line + chars[n];
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, x, y);
+          line = chars[n];
+          y += lineHeight;
+          lineCount++;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+      return lineCount + 1;
+    }
+
+    function playTone(freq = 440, duration = 0.18, type = "sine", volume = 0.02, when = 0){
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = 0.0001;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      const now = audioCtx.currentTime + when;
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function scheduleBGM(){
+      if (!bgmRunning || !audioCtx) return;
+
+      const notes = [523.25, 659.25, 783.99, 659.25, 587.33, 659.25, 783.99, 880];
+      let t = 0;
+      notes.forEach((n, i)=>{
+        playTone(n, .22, "triangle", .018, t);
+        if (i % 2 === 0) playTone(n / 2, .28, "sine", .01, t);
+        t += 0.38;
+      });
+
+      bgmTimer = setTimeout(scheduleBGM, 3600);
+    }
+
+    async function toggleBGM(){
+      try{
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === "suspended") {
+          await audioCtx.resume();
+        }
+
+        bgmRunning = !bgmRunning;
+        clearTimeout(bgmTimer);
+
+        if (bgmRunning) {
+          scheduleBGM();
+        }
+
+        const text = bgmRunning ? "关闭 BGM" : "开启 BGM";
+        bgmBtn.textContent = text;
+        bgmBtn2.textContent = text;
+      }catch(e){
+        alert("当前浏览器不支持这个简易 BGM，换 Chrome 试试。");
+      }
+    }
+
+    startBtn.addEventListener("click", startQuiz);
+    restartBtn.addEventListener("click", restartAll);
+    restartMidBtn.addEventListener("click", restartAll);
+    prevBtn.addEventListener("click", prevStep);
+    nextBtn.addEventListener("click", nextStep);
+    copyBtn.addEventListener("click", copyResult);
+    downloadBtn.addEventListener("click", downloadPoster);
+    bgmBtn.addEventListener("click", toggleBGM);
+    bgmBtn2.addEventListener("click", toggleBGM);
+
+    initPreview();
+  </script>
+</body>
+</html>
