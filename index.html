@@ -335,8 +335,8 @@
           <div class="hero-inner">
             <div class="brand">初晓CompleX</div>
             <h1 class="hero-title">败北女主太多了！</h1>
-            <p class="hero-sub">随机抽取 15 题，测出最契合你的婚约对象。</p>
-            <p class="hero-note">本版重点优化了题目分布和结果算法，尽量避免某一位角色异常高频出现。</p>
+            <p class="hero-sub">从 50 题题库中随机抽取 15 题，测出最契合你的婚约对象。</p>
+            <p class="hero-note">本版重点优化了题目分布和结果算法，并修正了随机抽题后的题号显示。</p>
             <button id="start-btn" class="hero-btn">开始测试</button>
           </div>
         </div>
@@ -562,7 +562,7 @@
 
 你对关系中的“轻松”接受度很高，也不一定执着于完美成熟。你可能会觉得有点脱线、有点不靠谱，反而更亲近。
 
-如果最后是她，说明你对相处压力的要求很低，更喜欢自然、没有架子的感觉。`
+如果最后是她，说明你对相处压力的要求很低。`
       },
       {
         id:"sayo",
@@ -619,7 +619,7 @@
         ]
       },
       {
-        title:"5. 在关系里你最在意什么？",
+        title:"5. 你在关系里最在意什么？",
         tip:"选你最核心的一条。",
         options:[
           { title:"相处时开心又有来有回", desc:"互动感", effect:{ lively:2, romantic:1 } },
@@ -1130,6 +1130,10 @@
       return shuffle(pool).slice(0, count);
     }
 
+    function stripQuestionNumber(title) {
+      return String(title).replace(/^\s*\d+[.、]\s*/, "");
+    }
+
     function startQuiz(){
       activeQuestions = pickRandomQuestions(questionPool, DRAW_COUNT);
       currentQuestion = 0;
@@ -1140,7 +1144,9 @@
 
     function renderQuestion(){
       const q = activeQuestions[currentQuestion];
-      questionTitle.textContent = q.title;
+
+      // 修正：显示当前第几题，而不是题库原始编号
+      questionTitle.textContent = `${currentQuestion + 1}. ${stripQuestionNumber(q.title)}`;
       questionTip.textContent = q.tip;
 
       const percent = Math.round(((currentQuestion + 1) / activeQuestions.length) * 100);
@@ -1274,8 +1280,6 @@
         });
 
         let match = cosineScore * 0.62 + closenessScore * 0.38 + resonance;
-
-        // 轻微压缩极端分差，让结果更平衡
         match = 55 + (match - 55) * 0.82;
 
         return {
