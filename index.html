@@ -8,7 +8,7 @@
     :root{
       --bg1:#fff8fb;
       --bg2:#f3f7ff;
-      --card:rgba(255,255,255,.9);
+      --card:rgba(255,255,255,.92);
       --text:#2f3445;
       --sub:#70788c;
       --pink:#ff6ea9;
@@ -28,15 +28,17 @@
         radial-gradient(circle at 100% 100%, rgba(255,231,193,.4), transparent 18%),
         linear-gradient(135deg,var(--bg1),var(--bg2));
     }
+
     .wrap{max-width:980px;margin:0 auto;padding:28px 20px 40px;}
     .panel{
-      background:rgba(255,255,255,.9);
+      background:var(--card);
       border:1px solid rgba(255,255,255,.7);
       backdrop-filter:blur(10px);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       overflow:hidden;
     }
+
     .screen{display:none;animation:fade .35s ease;}
     .screen.active{display:block;}
     @keyframes fade{
@@ -176,6 +178,7 @@
       font-weight:700;
       margin-bottom:6px;
       color:#333b4d;
+      line-height:1.7;
     }
     .option-desc{
       font-size:13px;
@@ -271,57 +274,36 @@
     }
     .result-desc{
       white-space:pre-line;
-      line-height:1.9;
+      line-height:1.95;
       color:#444d62;
       font-size:15px;
     }
-    .single-col{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:18px;
-      margin-top:18px;
-    }
-    .trait-list{
+
+    .keyword-list{
       display:grid;
       gap:10px;
+      margin-top:18px;
     }
-    .trait-item{
+    .keyword-item{
       background:#fff;
       border:1px solid #edf1f8;
       border-radius:16px;
       padding:12px 14px;
-    }
-    .bar-top{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:center;
-      margin-bottom:8px;
+      color:#5b6580;
       font-size:14px;
     }
-    .bar{
-      width:100%;
-      height:8px;
-      border-radius:999px;
-      background:#edf2f8;
-      overflow:hidden;
-    }
-    .bar span{
-      display:block;
-      height:100%;
-      border-radius:999px;
-      background:linear-gradient(90deg,#ff8ebf,#97b8ff);
-    }
+
     .bottom-actions{
       display:flex;
       gap:12px;
       flex-wrap:wrap;
       margin-top:18px;
     }
+
     .poster-canvas{display:none;}
 
     @media (max-width:860px){
-      .result-grid,.single-col{grid-template-columns:1fr;}
+      .result-grid{grid-template-columns:1fr;}
       .q-title{font-size:23px;}
       .hero{min-height:68vh;}
     }
@@ -335,7 +317,7 @@
           <div class="hero-inner">
             <div class="brand">初晓CompleX</div>
             <h1 class="hero-title">败北女主太多了！</h1>
-            <p class="hero-sub">从 50 题题库中随机抽取 15 题，测出最契合你的婚约对象。</p>
+            <p class="hero-sub">从 50 题题库中抽取 15 题，测出最契合你的婚约对象。</p>
             <button id="start-btn" class="hero-btn">开始测试</button>
           </div>
         </div>
@@ -353,7 +335,7 @@
 
           <div class="q-card">
             <h2 id="question-title" class="q-title">题目</h2>
-            <p id="question-tip" class="q-tip">请选择最符合你的选项。</p>
+            <p id="question-tip" class="q-tip">请选择最符合你真实偏好的那一项。</p>
             <div id="options" class="options"></div>
           </div>
 
@@ -381,13 +363,7 @@
             <div class="card">
               <h3 class="section-title">结果解析</h3>
               <div id="result-desc" class="result-desc"></div>
-            </div>
-          </div>
-
-          <div class="single-col">
-            <div class="card">
-              <h3 class="section-title">你的倾向</h3>
-              <div id="trait-list" class="trait-list"></div>
+              <div id="keyword-list" class="keyword-list"></div>
             </div>
           </div>
 
@@ -406,675 +382,708 @@
   <script>
     const DRAW_COUNT = 15;
 
-    const TRAITS = [
-      { key:"lively",   label:"活泼外向" },
-      { key:"direct",   label:"直球表达" },
-      { key:"calm",     label:"慢热安静" },
-      { key:"mature",   label:"成熟可靠" },
-      { key:"romantic", label:"浪漫感" },
-      { key:"logic",    label:"理性思考" },
-      { key:"home",     label:"家庭感" },
-      { key:"support",  label:"照顾与治愈" },
-      { key:"mystery",  label:"神秘反差" },
-      { key:"insight",  label:"细腻与洞察" }
-    ];
-
     const characters = [
       {
         id:"yanami",
         name:"八奈见杏菜",
         image:"images/yanami.jpg",
-        profile:{ lively:9, direct:6, calm:2, mature:6, romantic:9, logic:7, home:4, support:7, mystery:4, insight:10 },
-        desc:`你更容易和八奈见杏菜形成一种“表面热闹、内里默契”的关系。
+        desc:`你最契合的对象，是八奈见杏菜。
 
-你重视相处里的温度和反应，也会被那种看似轻快、实际很懂人心的人吸引。你要的不只是开心，更是被看懂、被接住、被及时回应。
+你显然很吃“热闹外壳下的细腻”。你不会只被表面的元气吸引，你更在意一个人是不是会接话、会看气氛、也会在关键时候看穿你的情绪。
 
-如果最后是她，说明你偏爱的并不只是元气，而是带着洞察力的热闹，和那种嘴上不一定直说、心里却始终很清楚的细腻。`
+她不是单纯的轻松，她是那种嘴上绕、心里却很明白的人。你和她更容易建立起一种拌嘴也不散、热闹里带默契的关系。`,
+        tags:["热闹感","懂你","嘴硬心细","慢热升温"]
       },
       {
         id:"lemon",
         name:"烧盐柠檬",
         image:"images/lemon.jpg",
-        profile:{ lively:10, direct:7, calm:2, mature:4, romantic:6, logic:3, home:4, support:8, mystery:2, insight:7 },
-        desc:`你更容易和烧盐柠檬走到一起。
+        desc:`你最契合的对象，是烧盐柠檬。
 
-你会被明亮、坦率、有生命力的人吸引。你不喜欢关系里过度拧巴，也更接受那种虽然不擅长精密表达，但真诚非常直接的人。
+你会被那种明亮、直接、带着健康生命力的人吸引。你未必追求最精密的浪漫，但你很重视对方能不能把气氛带起来，能不能在你低落时把你往前拉。
 
-如果最后是她，说明你偏好的是鲜活、自然、能把气氛照亮的相处方式。`
+她不是单纯的大大咧咧，而是那种自己难过也会努力发光的人。你和她在一起，关系会更鲜活。`,
+        tags:["阳光感","行动派","直觉型","鲜活日常"]
       },
       {
         id:"komari",
         name:"小鞠知花",
         image:"images/komari.jpg",
-        profile:{ lively:2, direct:5, calm:10, mature:6, romantic:6, logic:4, home:10, support:10, mystery:4, insight:8 },
-        desc:`你和小鞠知花的契合点，更多来自安静、耐心与长期陪伴。
+        desc:`你最契合的对象，是小鞠知花。
 
-你会被那种不张扬、却很认真的人打动。你对关系的期待并不只是热闹，而是被真心对待、被默默放在心上。
+你会认真对待那种不那么外放、但真心很重的人。你不需要关系一直热闹，你更在意那种需要时间建立，却会越来越深的陪伴感。
 
-如果最后是她，说明你适合的是那种慢一点，但会越来越深的关系。`
+她并不轻松，但她很真。你和她更容易走向一种温柔、安静、会慢慢变成彼此依赖的关系。`,
+        tags:["安静陪伴","温柔依赖","细水长流","被认真对待"]
       },
       {
         id:"riko",
         name:"白玉莉子",
         image:"images/riko.jpg",
-        profile:{ lively:6, direct:10, calm:4, mature:4, romantic:8, logic:5, home:5, support:7, mystery:6, insight:6 },
-        desc:`你更容易被白玉莉子这种明确、直率的喜欢打动。
+        desc:`你最契合的对象，是白玉莉子。
 
-你不太吃拉扯太久的关系，反而更容易对那种“喜欢就是喜欢”的靠近心动。你接受依赖感，也接受明显的偏爱。
+你大概吃的是那种“喜欢就说、想靠近就靠近”的清爽感。你不太适合在关系里长期猜测，更容易被直接的好感和自然的依赖打动。
 
-如果最后是她，说明你更喜欢真诚、轻快、带着一点年下直球感的关系。`
+她身上的吸引力，正是那种轻快又真诚的年下直球。你和她在一起，恋爱感会来得更快、更明显。`,
+        tags:["年下感","直球","清爽喜欢","不绕弯"]
       },
       {
         id:"yumeko",
         name:"志喜屋梦子",
         image:"images/yumeko.jpg",
-        profile:{ lively:7, direct:9, calm:3, mature:5, romantic:6, logic:4, home:3, support:5, mystery:10, insight:8 },
-        desc:`你和志喜屋梦子的相性，更多来自反差和不可预测。
+        desc:`你最契合的对象，是志喜屋梦子。
 
-你并不只会被稳定、常规、好懂的人吸引。你也会被那种独特、贴近时让人摸不准下一步的人打动。
+你不会只被“稳定好懂”打动，你也会被反差、贴近感和不可预测的魅力吸引。你对那种会让人忍不住一直观察下去的人，有很强接受度。
 
-如果最后是她，说明你并不排斥复杂，甚至会被那种强烈而特别的吸引力反复拉住。`
+她不会是最省心的选项，但会是最有记忆点的那类。你和她在一起，很难平淡。`,
+        tags:["反差感","危险吸引力","贴近感","不可预测"]
       },
       {
         id:"kaju",
         name:"温水佳树",
         image:"images/kaju.jpg",
-        profile:{ lively:5, direct:8, calm:6, mature:7, romantic:5, logic:7, home:10, support:10, mystery:7, insight:7 },
-        desc:`你和温水佳树的契合点，在于稳定、照顾和很强的生活感。
+        desc:`你最契合的对象，是温水佳树。
 
-你真正看重的，往往不是一时的刺激，而是能不能长久地被放在心上。你会很吃细节、默契和家庭感。
+你真正想要的，大概不是一段只有表面甜度的关系，而是有人会把你纳入她的生活里，替你记住小事、照顾日常、让你自然地把“家”的感觉放进去。
 
-如果最后是她，说明你很适合那种能一起把日子过稳、过暖的关系。`
+她的强项不是张扬，而是稳定和照顾。你和她的关系更容易落到长期生活层面。`,
+        tags:["家庭感","照顾欲","长期相处","生活默契"]
       },
       {
         id:"hibari",
         name:"放虎原云雀",
         image:"images/hibari.jpg",
-        profile:{ lively:6, direct:5, calm:4, mature:9, romantic:4, logic:8, home:5, support:6, mystery:3, insight:6 },
-        desc:`你更容易被放虎原云雀这种可靠型吸引。
+        desc:`你最契合的对象，是放虎原云雀。
 
-你重视现实中的稳当和可信，也更容易欣赏责任感强、能扛事的人。你不一定追求最浓烈的恋爱感，但会很在意长期相处是否省心。
+你会对那种可靠、能让人放心、整体很正的人有天然好感。你不一定追求最强烈的恋爱拉扯，但会很在意一个人是不是能把现实生活稳稳接住。
 
-如果最后是她，说明你最吃的是安心感。`
+她的吸引力不是戏剧化，而是很正、很稳、很适合一起走远。`,
+        tags:["可靠感","会长系","安心","长期稳定"]
       },
       {
         id:"karen",
         name:"姬宫华恋",
         image:"images/karen.jpg",
-        profile:{ lively:9, direct:10, calm:2, mature:5, romantic:8, logic:4, home:4, support:7, mystery:1, insight:6 },
-        desc:`你和姬宫华恋的相性，来自明确、明亮和毫不遮掩的好感。
+        desc:`你最契合的对象，是姬宫华恋。
 
-你不太适合长期试探式的关系。你更吃那种喜欢就是喜欢、温度很清楚、相处时很少有阴影感的人。
+你吃的是“光明正大的喜欢”。你不太适合暧昧不明、弯弯绕绕太久的关系，更容易被那种喜欢就会靠近、情绪很明亮、温度写在脸上的人吸引。
 
-如果最后是她，说明你偏爱的，是足够热烈也足够坦荡的关系。`
+她的魅力是坦荡，是不藏。你和她在一起，会更容易感受到关系本身的明亮感。`,
+        tags:["太阳感","直球偏爱","明亮关系","不藏着"]
       },
       {
         id:"chihaya",
         name:"朝云千早",
         image:"images/chihaya.jpg",
-        profile:{ lively:4, direct:6, calm:7, mature:8, romantic:6, logic:10, home:5, support:6, mystery:3, insight:8 },
-        desc:`你和朝云千早更容易在“能沟通、讲道理、长期稳定”的关系里靠近。
+        desc:`你最契合的对象，是朝云千早。
 
-你重视思维方式是否合拍，也很在意边界、节奏和判断力。你要的不只是心动，更是相处的清醒感。
+你不是只追求心动，你也重视脑子、节奏、边界和长期相处的舒适度。你会欣赏那种既能温柔，又能冷静判断的人。
 
-如果最后是她，说明你很适合和脑子在线的人谈一段认真关系。`
+她给你的吸引力，更多是“能谈得明白、能相处很久”的那种清醒感。`,
+        tags:["知性","清醒沟通","理性温柔","长期主义"]
       },
       {
         id:"koto",
         name:"月之木古都",
         image:"images/koto.jpg",
-        profile:{ lively:7, direct:5, calm:4, mature:5, romantic:4, logic:4, home:3, support:4, mystery:2, insight:6 },
-        desc:`你和月之木古都的相性，在于轻快、外放和相处的轻松感。
+        desc:`你最契合的对象，是月之木古都。
 
-你不一定需要特别强控制感或特别高密度的深沉，你也可能更偏爱“很好懂、很好聊、不会太闷”的关系。
+你并不一定需要一个特别沉稳、特别端着的人。你也会被那种好懂、鲜活、说起自己喜欢的东西就整个人亮起来的人吸引。
 
-如果最后是她，说明你对“有趣”和“好接近”很看重。`
+她的魅力在于轻快、透明和有趣。你和她在一起，更容易把日常过得不闷。`,
+        tags:["轻快感","有趣","透明感","不无聊"]
       },
       {
         id:"asami",
         name:"权藤亚沙美",
         image:"images/asami.jpg",
-        profile:{ lively:5, direct:5, calm:6, mature:6, romantic:4, logic:6, home:5, support:5, mystery:2, insight:5 },
-        desc:`你更容易和权藤亚沙美这种舒服型的人契合。
+        desc:`你最契合的对象，是权藤亚沙美。
 
-你未必需要戏剧性很强的关系，你也会偏爱那种稳定、顺滑、不过分折腾、相处成本低的人。
+你其实并不一定需要一个戏剧性很强的人。你也许真正适合的是那种舒服、稳定、不会给你太大情绪负担的人。
 
-如果最后是她，说明你对关系的期待更现实，也更耐久。`
+她的魅力不是极端，而是平衡。你和她更容易走向一种顺滑、现实、耐久的关系。`,
+        tags:["舒服","平衡","顺滑相处","现实适配"]
       },
       {
         id:"amai",
         name:"马剃天爱星",
         image:"images/amai.jpg",
-        profile:{ lively:5, direct:4, calm:5, mature:7, romantic:4, logic:7, home:4, support:5, mystery:4, insight:6 },
-        desc:`你和马剃天爱星的契合点，在于认真、踏实和不张扬的可靠。
+        desc:`你最契合的对象，是马剃天爱星。
 
-你会欣赏那种默默把事情做好、虽然不一定最会表达，却始终稳得住的人。
+你会欣赏那种默默努力、认真把事情做好、不靠花哨取胜的人。你对责任感和稳定输出是很有感知的。
 
-如果最后是她，说明你会被克制、认真、需要慢慢看见的魅力打动。`
+她不一定是最会制造恋爱气氛的人，但会是那种相处越久越觉得可靠的人。`,
+        tags:["认真","努力型","稳定输出","越处越顺眼"]
       },
       {
         id:"konami",
         name:"甘夏古奈美",
         image:"images/konami.jpg",
-        profile:{ lively:6, direct:5, calm:3, mature:2, romantic:4, logic:2, home:3, support:6, mystery:2, insight:3 },
-        desc:`你和甘夏古奈美的契合点，主要来自松弛和没距离感。
+        desc:`你最契合的对象，是甘夏古奈美。
 
-你对关系中的“轻松”接受度很高，也不一定执着于完美成熟。你可能会觉得有点脱线、有点不靠谱，反而更亲近。
+这说明你对“轻松、没距离感、相处不费力”这件事看得很重。你并不执着于传统意义上的成熟，反而可能会觉得有点脱线、没那么端着的人更容易亲近。
 
-如果最后是她，说明你对相处压力的要求很低。`
+如果是她赢，通常意味着你对松弛感的偏好很高。`,
+        tags:["松弛感","没距离","轻松","不端着"]
       },
       {
         id:"sayo",
         name:"小拔小夜",
         image:"images/sayo.jpg",
-        profile:{ lively:4, direct:8, calm:6, mature:10, romantic:8, logic:7, home:4, support:8, mystery:5, insight:7 },
-        desc:`你和小拔小夜的相性，来自成熟、从容和明显的魅力感。
+        desc:`你最契合的对象，是小拔小夜。
 
-你会被那种很懂气氛、会照顾人、同时又足够有分寸和压场能力的人吸引。你不抗拒被“更成熟的一方”稳稳接住。
+你会明显被“成熟、会照顾、知道怎么拿捏气氛”的类型吸引。你并不抗拒对方身上那种强烈的成年感，甚至会觉得这正是魅力来源。
 
-如果最后是她，说明你对带着成年感的吸引力很难免疫。`
+她的吸引力在于从容和分寸感。你和她在一起，更容易感受到被稳稳看着。`,
+        tags:["成熟魅力","大姐姐","治愈","从容感"]
       }
     ];
 
-    const questionPool = [
+    // 每位角色 2 道专属题，共 28 题
+    const anchorPools = {
+      yanami: [
+        {
+          title:"如果对方和你熟起来以后会这样，你最容易心动哪一种？",
+          tip:"四个都不是好坏，只是不同偏好。",
+          options:[
+            { title:"嘴上会损你两句，但每次都能接住你的情绪", desc:"有点刺，但很懂你", scores:{ yanami:3, chihaya:1 }, tags:["嘴硬心细","被看懂"] },
+            { title:"会直接夸你、直接选你，从不让你猜", desc:"喜欢都放在明面上", scores:{ karen:3, riko:1 }, tags:["明确偏爱","直球"] },
+            { title:"不太会说，但会默默记住你的小习惯", desc:"安静地把你放在心上", scores:{ komari:3, kaju:1 }, tags:["细节照顾","慢热"] },
+            { title:"会把日程和节奏安排得很稳，让你特别放心", desc:"靠谱比花哨重要", scores:{ hibari:3, amai:1 }, tags:["可靠","稳定"] }
+          ]
+        },
+        {
+          title:"下面哪种相处氛围最打中你？",
+          tip:"选你真的会留恋的那种。",
+          options:[
+            { title:"饭桌上一路聊一路吐槽，最后发现最会懂你的人就在对面", desc:"热闹里带默契", scores:{ yanami:3, koto:1 }, tags:["热闹默契","有来有回"] },
+            { title:"对方会拉着你出门，把低气压直接晒散", desc:"带你往外走", scores:{ lemon:3, hibari:1 }, tags:["元气","行动感"] },
+            { title:"你不太说，她也能看出你今天不太对劲", desc:"被敏锐地察觉", scores:{ chihaya:3, komari:1 }, tags:["洞察","细腻"] },
+            { title:"对方很会撩，但又不是瞎撩，你会明显意识到自己被盯上了", desc:"成熟压迫感", scores:{ sayo:3, yumeko:1 }, tags:["被锁定","强魅力"] }
+          ]
+        }
+      ],
+
+      lemon: [
+        {
+          title:"你更容易被哪种‘明亮感’吸引？",
+          tip:"不是漂亮，而是你真会靠近的那类。",
+          options:[
+            { title:"明明自己也会难过，但还是想把气氛带起来的人", desc:"发光不是因为不脆弱", scores:{ lemon:3, yanami:1 }, tags:["阳光","纤细"] },
+            { title:"喜欢就直接出击，完全不藏着的人", desc:"坦荡到让人招架不住", scores:{ karen:3, riko:1 }, tags:["主动","直球"] },
+            { title:"像会长那样干净利落、站在那就很正的人", desc:"可靠又清爽", scores:{ hibari:3, amai:1 }, tags:["正感","可靠"] },
+            { title:"有点脱线，没什么距离，像大孩子一样的人", desc:"轻松又不费力", scores:{ konami:3, asami:1 }, tags:["松弛","没距离"] }
+          ]
+        },
+        {
+          title:"如果一起过周末，你更偏向哪种节奏？",
+          tip:"选你身体会更先答应的那种。",
+          options:[
+            { title:"上午就拉你出门，运动也好、乱逛也好，别闷着", desc:"一起动起来", scores:{ lemon:3, hibari:1 }, tags:["外出","生命力"] },
+            { title:"边吃边聊边犯懒，中途还要互损几句", desc:"日常系热闹", scores:{ yanami:3, koto:1 }, tags:["热闹","烟火气"] },
+            { title:"待在家里，一边做事一边被照顾得很好", desc:"生活感被拉满", scores:{ kaju:3, komari:1 }, tags:["居家","照顾"] },
+            { title:"像成熟大人那样，会把氛围和节奏拿捏得刚刚好", desc:"不乱，也不无聊", scores:{ sayo:3, chihaya:1 }, tags:["从容","被带着走"] }
+          ]
+        }
+      ],
+
+      komari: [
+        {
+          title:"哪种‘不张扬的真心’最让你心里一软？",
+          tip:"这题更看你吃哪种温度。",
+          options:[
+            { title:"明明很紧张，但还是会认真把心意送出来", desc:"怯生生但很真", scores:{ komari:3, riko:1 }, tags:["笨拙真心","勇敢"] },
+            { title:"不靠说，直接把你的生活照顾得明明白白", desc:"行动型在意", scores:{ kaju:3, amai:1 }, tags:["照顾","安稳"] },
+            { title:"虽然嘴硬，但总在关键处帮你兜住场面", desc:"嘴上不饶，心里有数", scores:{ yanami:3, chihaya:1 }, tags:["嘴硬心软","被兜住"] },
+            { title:"会用成年人的从容让你慢慢放下戒备", desc:"不催你，但很会靠近", scores:{ sayo:3, asami:1 }, tags:["成熟安抚","放松"] }
+          ]
+        },
+        {
+          title:"如果对方不是特别外放，你更喜欢她怎么表达喜欢？",
+          tip:"选最戳你的表达方式。",
+          options:[
+            { title:"不太会说，但会在关键时刻拿出勇气", desc:"安静里带决心", scores:{ komari:3, amai:1 }, tags:["慢热","有勇气"] },
+            { title:"会把你放进她的日常里，一点点照顾你", desc:"长期型喜欢", scores:{ kaju:3, asami:1 }, tags:["生活感","家"] },
+            { title:"表面随意，实则看你看得很透", desc:"不是笨，是不说", scores:{ yanami:3, chihaya:1 }, tags:["被理解","洞察"] },
+            { title:"很特别、很贴近，让你老是忍不住想她下一步", desc:"不按套路", scores:{ yumeko:3, koto:1 }, tags:["反差","特别"] }
+          ]
+        }
+      ],
+
+      riko: [
+        {
+          title:"哪种‘主动靠近’最容易让你心动？",
+          tip:"不是最理想，是最会让你沦陷。",
+          options:[
+            { title:"那种会直接说“我就是喜欢你”的靠近", desc:"不拖泥带水", scores:{ riko:3, karen:1 }, tags:["直球","明确"] },
+            { title:"表面只是和你闹，实际越来越靠近你", desc:"熟人感升温", scores:{ yanami:3, lemon:1 }, tags:["日常升温","轻快"] },
+            { title:"不太说，但会一直默默记着你", desc:"静静地偏心", scores:{ komari:3, kaju:1 }, tags:["默默在意","安静"] },
+            { title:"靠近方式很特别，甚至有点过界，但你就是忘不掉", desc:"危险型吸引", scores:{ yumeko:3, sayo:1 }, tags:["刺激","记忆点"] }
+          ]
+        },
+        {
+          title:"你更吃哪种‘年轻感’？",
+          tip:"不是年龄，是气质。",
+          options:[
+            { title:"会黏你、会直说、会把依赖摆出来", desc:"不藏着的喜欢", scores:{ riko:3, kaju:1 }, tags:["依赖感","直给"] },
+            { title:"整个人像太阳一样，喜欢就会大大方方来", desc:"明亮型主动", scores:{ karen:3, lemon:1 }, tags:["太阳感","大方"] },
+            { title:"平时安静，但一认真就特别狠", desc:"慢热里的决心", scores:{ komari:3, amai:1 }, tags:["认真","反差"] },
+            { title:"看着天然，其实很会把节奏往自己那边带", desc:"不简单的小心机", scores:{ kaju:3, yanami:1 }, tags:["不简单","掌控感"] }
+          ]
+        }
+      ],
+
+      yumeko: [
+        {
+          title:"哪种‘特别感’对你杀伤力最大？",
+          tip:"选你会忍不住多看几眼的那种。",
+          options:[
+            { title:"会突然贴很近，让你完全猜不到下一秒想干嘛", desc:"危险又上头", scores:{ yumeko:3, sayo:1 }, tags:["贴近感","不可预测"] },
+            { title:"虽然明亮，但靠近时非常坦荡，根本不藏", desc:"正面强攻", scores:{ karen:3, riko:1 }, tags:["明着来","偏爱感"] },
+            { title:"看着不高调，却在关键时刻稳稳接住一切", desc:"沉稳可靠", scores:{ hibari:3, amai:1 }, tags:["稳住局面","放心"] },
+            { title:"会一边损你一边读懂你，让你根本躲不掉", desc:"嘴上绕，心里准", scores:{ yanami:3, chihaya:1 }, tags:["被看穿","扛不住"] }
+          ]
+        },
+        {
+          title:"如果你会被一个人反复吸引，最可能是为什么？",
+          tip:"看你吃不吃反差。",
+          options:[
+            { title:"她身上永远有下一层，让你总想再靠近一点", desc:"看不透", scores:{ yumeko:3, koto:1 }, tags:["神秘","下一层"] },
+            { title:"她成熟得太危险，会让你心跳加速", desc:"大人感压制", scores:{ sayo:3, chihaya:1 }, tags:["成熟魅力","压场"] },
+            { title:"她很明亮，但并不扁平，反而越看越真", desc:"开朗不等于简单", scores:{ lemon:3, yanami:1 }, tags:["鲜活","有层次"] },
+            { title:"她平时像正常人，但越相处越发现特别耐看", desc:"稳定型后劲", scores:{ asami:3, amai:1 }, tags:["耐看","平衡"] }
+          ]
+        }
+      ],
+
+      kaju: [
+        {
+          title:"哪种‘被照顾’最让你放下防备？",
+          tip:"不是谁更强，而是谁更适合你。",
+          options:[
+            { title:"对方几乎把生活细节都替你想到", desc:"你会直接安心", scores:{ kaju:3, komari:1 }, tags:["被照顾","生活感"] },
+            { title:"对方会在热闹里一直把你顾进去", desc:"不会让你掉线", scores:{ yanami:3, lemon:1 }, tags:["热闹里被在意","存在感"] },
+            { title:"对方很稳，会把很多现实问题先处理好", desc:"成熟型安全感", scores:{ hibari:3, amai:1 }, tags:["可靠","省心"] },
+            { title:"对方很会撩也很会看你状态，让你很难招架", desc:"成年人的余裕", scores:{ sayo:3, chihaya:1 }, tags:["拿捏感","从容"] }
+          ]
+        },
+        {
+          title:"如果真的要一起过日子，你最想要哪种感觉？",
+          tip:"这题比较接近婚约对象核心。",
+          options:[
+            { title:"有人会自然把你纳入她的生活安排里", desc:"像家一样", scores:{ kaju:3, asami:1 }, tags:["家","长期"] },
+            { title:"每天都热热闹闹，不会冷场，也不会无聊", desc:"日常有温度", scores:{ yanami:3, koto:1 }, tags:["热闹","烟火气"] },
+            { title:"虽然不闹，但会很温柔很认真地陪着你", desc:"安静型稳定", scores:{ komari:3, chihaya:1 }, tags:["陪伴","认真"] },
+            { title:"整体成熟、节奏稳、你能被很有分寸地接住", desc:"成年感很强", scores:{ sayo:3, hibari:1 }, tags:["被接住","成熟"] }
+          ]
+        }
+      ],
+
+      hibari: [
+        {
+          title:"你会对哪种‘正感’更有好感？",
+          tip:"不是死板，是让你安心的那种正。",
+          options:[
+            { title:"能扛事、能安排、站出来就让人安心的人", desc:"典型可靠型", scores:{ hibari:3, amai:1 }, tags:["可靠","会长感"] },
+            { title:"脑子清楚、讲话有逻辑、相处边界很舒服的人", desc:"知性型稳定", scores:{ chihaya:3, asami:1 }, tags:["清醒","边界感"] },
+            { title:"会把你的生活状态一起照顾进去的人", desc:"生活稳定型", scores:{ kaju:3, komari:1 }, tags:["照顾","长期"] },
+            { title:"表面热闹，实际很会观察局面的人", desc:"气氛掌控型", scores:{ yanami:3, karen:1 }, tags:["会看场面","会接住"] }
+          ]
+        },
+        {
+          title:"如果你信任一个人，最主要是因为什么？",
+          tip:"选最重要的那个理由。",
+          options:[
+            { title:"她做事干净利落，关键时刻不会掉链子", desc:"行动上的可信", scores:{ hibari:3, amai:1 }, tags:["执行力","稳"] },
+            { title:"她能把事情讲清楚，不制造额外麻烦", desc:"沟通上的可信", scores:{ chihaya:3, asami:1 }, tags:["理性","省心"] },
+            { title:"她会在日常里持续地对你好", desc:"生活上的可信", scores:{ kaju:3, komari:1 }, tags:["日常积累","温柔"] },
+            { title:"她不会装，会很明亮地表达喜欢和态度", desc:"态度上的可信", scores:{ karen:3, lemon:1 }, tags:["坦荡","直给"] }
+          ]
+        }
+      ],
+
+      karen: [
+        {
+          title:"哪种‘喜欢你’的方式，你最容易接住？",
+          tip:"选你最不容易逃掉的那种。",
+          options:[
+            { title:"她直接站到你面前，把偏爱说得清清楚楚", desc:"就是要让你知道", scores:{ karen:3, riko:1 }, tags:["偏爱明确","坦荡"] },
+            { title:"她看似随意，实则总能精准戳中你的心事", desc:"不说破但很准", scores:{ yanami:3, chihaya:1 }, tags:["洞察","心照不宣"] },
+            { title:"她会用照顾和长期陪伴把你慢慢围住", desc:"安稳型沦陷", scores:{ kaju:3, komari:1 }, tags:["围住你","慢慢陷"] },
+            { title:"她会用成熟又危险的方式让你意识到自己跑不掉", desc:"成年感压迫", scores:{ sayo:3, yumeko:1 }, tags:["压制感","被盯上"] }
+          ]
+        },
+        {
+          title:"如果恋爱本身有一种颜色，你更想要哪种？",
+          tip:"选你最想长期待在里面的那种颜色。",
+          options:[
+            { title:"亮的，暖的，毫不遮掩的", desc:"明亮而正面", scores:{ karen:3, lemon:1 }, tags:["明亮","太阳感"] },
+            { title:"粉的，但会带一点刺和一点弯", desc:"浪漫但不直给", scores:{ yanami:3, riko:1 }, tags:["浪漫","嘴硬"] },
+            { title:"浅的，静的，慢慢染开", desc:"慢热型温柔", scores:{ komari:3, kaju:1 }, tags:["柔和","细水长流"] },
+            { title:"深一点，危险一点，很会勾人", desc:"成熟或诡异都行", scores:{ sayo:3, yumeko:1 }, tags:["危险吸引","深色系"] }
+          ]
+        }
+      ],
+
+      chihaya: [
+        {
+          title:"哪种‘聪明’最让你有好感？",
+          tip:"不只是智商，是你真正会舒服的那种。",
+          options:[
+            { title:"会分析、会判断、讲话很有条理", desc:"脑子很在线", scores:{ chihaya:3, amai:1 }, tags:["逻辑","判断"] },
+            { title:"很会读空气，知道什么时候该说什么", desc:"情商型聪明", scores:{ yanami:3, hibari:1 }, tags:["会观察","会接话"] },
+            { title:"虽然不外放，但会默默把很多细节记住", desc:"安静型聪明", scores:{ komari:3, kaju:1 }, tags:["细节","默默记住"] },
+            { title:"她不是常规路线，但每一步都让你印象深刻", desc:"特别型聪明", scores:{ yumeko:3, koto:1 }, tags:["不按套路","反差"] }
+          ]
+        },
+        {
+          title:"你更想和什么样的人认真谈长期关系？",
+          tip:"这题尽量别选想象中的，选真的会舒服的。",
+          options:[
+            { title:"思路清楚，情绪稳定，遇事可以讲明白", desc:"长期相处效率高", scores:{ chihaya:3, asami:1 }, tags:["理性稳定","可沟通"] },
+            { title:"虽然热闹，但关键时刻比谁都看得透", desc:"不会让你心累", scores:{ yanami:3, hibari:1 }, tags:["热闹但稳","看得清"] },
+            { title:"温柔且会照顾人，会把你放进她的生活里", desc:"长期生活型", scores:{ kaju:3, komari:1 }, tags:["生活适配","被照顾"] },
+            { title:"成熟又会掌控氛围，你会不自觉听她的", desc:"成年魅力型", scores:{ sayo:3, amai:1 }, tags:["大人感","掌控感"] }
+          ]
+        }
+      ],
+
+      koto: [
+        {
+          title:"下面哪种‘有趣’最对你胃口？",
+          tip:"不是搞笑，是你愿意一直待着的那种趣味。",
+          options:[
+            { title:"会把自己的兴趣讲得整个人都亮起来的人", desc:"鲜活外放型", scores:{ koto:3, lemon:1 }, tags:["有趣","亮起来"] },
+            { title:"会在聊天里不断接你梗、和你互损的人", desc:"熟人型高频互动", scores:{ yanami:3, karen:1 }, tags:["有来有回","接梗"] },
+            { title:"看起来正常，熟了以后发现特别怪", desc:"反差怪味型", scores:{ yumeko:3, konami:1 }, tags:["怪得有趣","上头"] },
+            { title:"平时稳稳的，但偶尔天然一下特别可爱", desc:"正经里出岔子", scores:{ hibari:3, asami:1 }, tags:["天然感","耐看"] }
+          ]
+        },
+        {
+          title:"如果一个人‘很透明’，你会怎么理解？",
+          tip:"透明不等于简单。",
+          options:[
+            { title:"她喜欢什么、讨厌什么，都很明显", desc:"情绪透明型", scores:{ koto:3, karen:1 }, tags:["透明","鲜明"] },
+            { title:"她会直接把喜欢告诉你，不扭扭捏捏", desc:"态度透明型", scores:{ riko:3, lemon:1 }, tags:["直接","不藏"] },
+            { title:"她做事很稳，几乎不会让你猜她在想什么", desc:"可靠透明型", scores:{ hibari:3, amai:1 }, tags:["稳当","不费神"] },
+            { title:"她看着透明，但偶尔会露出一点并不简单的部分", desc:"轻微反差型", scores:{ kaju:3, yanami:1 }, tags:["不简单","有层次"] }
+          ]
+        }
+      ],
+
+      asami: [
+        {
+          title:"你对‘普通但舒服’的接受度有多高？",
+          tip:"不是将就，是你是否真吃这一套。",
+          options:[
+            { title:"很高，我本来就不需要每秒都高能", desc:"舒服最重要", scores:{ asami:3, hibari:1 }, tags:["舒服","顺滑"] },
+            { title:"我还是更想要那种明亮一点、存在感强一点的人", desc:"不想太平", scores:{ karen:3, lemon:1 }, tags:["明亮","有存在感"] },
+            { title:"我更容易被安静但很深的人吸引", desc:"慢热深层型", scores:{ komari:3, chihaya:1 }, tags:["深层连接","安静"] },
+            { title:"我会被特别、有点怪、有点危险的吸引力拉走", desc:"常规不太够", scores:{ yumeko:3, sayo:1 }, tags:["特别","危险感"] }
+          ]
+        },
+        {
+          title:"哪种关系最让你觉得‘可以过日子’？",
+          tip:"这题比恋爱更偏婚约对象。",
+          options:[
+            { title:"没那么戏剧化，但真的很省心", desc:"顺滑现实型", scores:{ asami:3, amai:1 }, tags:["省心","平衡"] },
+            { title:"有人把生活照顾得很细，很难不依赖", desc:"家庭型适配", scores:{ kaju:3, komari:1 }, tags:["家感","依赖"] },
+            { title:"彼此会聊、会闹、日子不会发闷", desc:"热闹型适配", scores:{ yanami:3, koto:1 }, tags:["不闷","有互动"] },
+            { title:"对方很成熟，很多局面她都能拿住", desc:"成年型适配", scores:{ sayo:3, hibari:1 }, tags:["成熟","稳住"] }
+          ]
+        }
+      ],
+
+      amai: [
+        {
+          title:"你会更欣赏哪种‘默默努力’？",
+          tip:"别选最正确的，选最打动你的。",
+          options:[
+            { title:"不张扬，但一直在把事情撑住的人", desc:"认真到让人放心", scores:{ amai:3, hibari:1 }, tags:["认真","撑住局面"] },
+            { title:"不太会说，但会把你的生活照顾好", desc:"安静但可靠", scores:{ kaju:3, komari:1 }, tags:["照顾","踏实"] },
+            { title:"表面轻快，实际上比谁都看得懂局势", desc:"轻巧里的成熟", scores:{ yanami:3, chihaya:1 }, tags:["会判断","情绪洞察"] },
+            { title:"会直接把喜欢和态度亮出来，不让你猜", desc:"坦率型魅力", scores:{ karen:3, riko:1 }, tags:["明确","不猜"] }
+          ]
+        },
+        {
+          title:"如果你慢慢喜欢上一个人，最可能是因为她……",
+          tip:"这题很接近你长期选择的口味。",
+          options:[
+            { title:"一直很稳，一直在做事，越看越顺眼", desc:"后劲型", scores:{ amai:3, asami:1 }, tags:["后劲","稳"] },
+            { title:"会把你的情绪和状态一起照顾进去", desc:"长期陪伴型", scores:{ kaju:3, komari:1 }, tags:["陪伴","照顾"] },
+            { title:"会长式正感很强，让你天然放心", desc:"正面型安全感", scores:{ hibari:3, chihaya:1 }, tags:["安全感","可信"] },
+            { title:"她整个人特别鲜明，想不注意都难", desc:"强存在感型", scores:{ karen:3, yumeko:1 }, tags:["鲜明","很难忽略"] }
+          ]
+        }
+      ],
+
+      konami: [
+        {
+          title:"你对‘不太靠谱但很亲近’这件事怎么看？",
+          tip:"这题会明显影响甘夏系结果。",
+          options:[
+            { title:"我其实挺吃这一套，相处轻松很重要", desc:"松弛感比端着重要", scores:{ konami:3, koto:1 }, tags:["松弛","轻松"] },
+            { title:"我还是更喜欢真正靠谱、能扛事的人", desc:"轻松不能代替稳定", scores:{ hibari:3, amai:1 }, tags:["靠谱","稳定"] },
+            { title:"我更在意对方是不是会认真照顾你", desc:"生活上的在意更重要", scores:{ kaju:3, komari:1 }, tags:["照顾","家感"] },
+            { title:"我会更被成熟又会拿捏气氛的人吸引", desc:"成年感会直接赢", scores:{ sayo:3, chihaya:1 }, tags:["成熟","掌控感"] }
+          ]
+        },
+        {
+          title:"如果对方没有什么‘老师/前辈威严’，你会觉得？",
+          tip:"选你真正舒服的反应。",
+          options:[
+            { title:"反而更亲近，没压力，像很好接近的大人", desc:"没有距离感", scores:{ konami:3, asami:1 }, tags:["没压力","亲近"] },
+            { title:"我更喜欢那种表面轻松、实则很会看人的", desc:"不是没威严，是会收着", scores:{ yanami:3, hibari:1 }, tags:["轻快但懂事","有分寸"] },
+            { title:"我还是喜欢真正成熟有余裕的类型", desc:"大人感必须要强", scores:{ sayo:3, chihaya:1 }, tags:["成熟","余裕"] },
+            { title:"我会被明亮又坦荡的人直接吸过去", desc:"有太阳味最重要", scores:{ karen:3, lemon:1 }, tags:["明亮","大方"] }
+          ]
+        }
+      ],
+
+      sayo: [
+        {
+          title:"你会对哪种‘大人感’完全没抵抗力？",
+          tip:"这题很容易把结果拉向成熟系。",
+          options:[
+            { title:"很会照顾人，也很会拿捏气氛的人", desc:"成熟得太会了", scores:{ sayo:3, chihaya:1 }, tags:["大姐姐","会拿捏"] },
+            { title:"整体很稳，做事可靠，但不故作老练的人", desc:"正派成熟型", scores:{ hibari:3, amai:1 }, tags:["正感成熟","稳"] },
+            { title:"嘴上轻巧，但心里比谁都通透的人", desc:"不装成熟，真的成熟", scores:{ yanami:3, asami:1 }, tags:["通透","轻巧"] },
+            { title:"会在生活里持续对你好的人", desc:"慢慢陷进去", scores:{ kaju:3, komari:1 }, tags:["照顾","日常"] }
+          ]
+        },
+        {
+          title:"下面哪种魅力更容易让你失守？",
+          tip:"选你最难装不在意的那种。",
+          options:[
+            { title:"明知道她有点危险，但就是会一直看她", desc:"成熟危险型", scores:{ sayo:3, yumeko:1 }, tags:["危险魅力","成年感"] },
+            { title:"她会很坦荡地把喜欢摆到你面前", desc:"明亮直球型", scores:{ karen:3, riko:1 }, tags:["直球","偏爱"] },
+            { title:"她安静、认真、越靠近越觉得柔软", desc:"慢热温柔型", scores:{ komari:3, chihaya:1 }, tags:["安静","深层温柔"] },
+            { title:"她不一定很张扬，但在生活里强得可怕", desc:"隐藏BOSS型", scores:{ kaju:3, hibari:1 }, tags:["生活力","强稳定"] }
+          ]
+        }
+      ]
+    };
+
+    // 22 道混合题
+    const mixedQuestions = [
       {
-        title:"1. 周末约会，你更想怎么过？",
-        tip:"选最贴近你的真实偏好。",
+        title:"如果你和对象第一次一起吃饭，最希望她是什么状态？",
+        tip:"四种状态都不是标准答案。",
         options:[
-          { title:"边走边吃边聊天，路线随缘", desc:"轻松热闹最重要", effect:{ lively:2, romantic:1 } },
-          { title:"去能动起来的地方，别太闲", desc:"活力感优先", effect:{ lively:2, direct:1 } },
-          { title:"找个安静地方待着，舒服就行", desc:"慢热陪伴型", effect:{ calm:2, support:1 } },
-          { title:"安排妥当，节奏稳定不出岔子", desc:"可靠秩序型", effect:{ mature:2, logic:1 } }
+          { title:"很会接话，饭还没吃完就熟起来了", desc:"你吃的是气氛", scores:{ yanami:2, koto:1 } , tags:["接话","熟得快"]},
+          { title:"喜欢就会直接表达，不让场面悬着", desc:"你吃的是明确", scores:{ karen:2, riko:1 }, tags:["明确","不悬着"]},
+          { title:"会默默注意你喜欢什么、不喜欢什么", desc:"你吃的是细节", scores:{ komari:2, kaju:1 }, tags:["细节","被在意"]},
+          { title:"会自然掌控节奏，让你完全不尴尬", desc:"你吃的是成熟", scores:{ sayo:2, chihaya:1 }, tags:["掌控感","不尴尬"]}
         ]
       },
       {
-        title:"2. 你最容易被哪种第一印象吸引？",
-        tip:"不是理想中，而是真会让你多看两眼的。",
+        title:"你更想和哪种人一起逛超市？",
+        tip:"很生活化，但很能看偏好。",
         options:[
-          { title:"很会带气氛的人", desc:"有存在感", effect:{ lively:2, insight:1 } },
-          { title:"坦率直接的人", desc:"不绕弯", effect:{ direct:2 } },
-          { title:"安静但有内容的人", desc:"慢热型", effect:{ calm:2, mystery:1 } },
-          { title:"很特别、说不上来的那种", desc:"反差感强", effect:{ mystery:2, romantic:1 } }
+          { title:"会边逛边吐槽边乱买零食的人", desc:"过程最重要", scores:{ yanami:2, konami:1 }, tags:["零食","热闹"]},
+          { title:"会直接把该买的都拿齐，不拖拉", desc:"效率优先", scores:{ hibari:2, amai:1 }, tags:["效率","干脆"]},
+          { title:"会悄悄把你的习惯一起记进去", desc:"生活照顾感", scores:{ kaju:2, komari:1 }, tags:["生活感","照顾"]},
+          { title:"会突然在货架间靠近你，说些很不妙的话", desc:"危险又勾人", scores:{ sayo:2, yumeko:1 }, tags:["靠近","危险感"]}
         ]
       },
       {
-        title:"3. 如果对方情绪低落，你会怎么陪？",
-        tip:"选你大概率真的会做的。",
+        title:"你更容易被哪种‘会聊天’打中？",
+        tip:"不是谁更健谈，而是哪种最让你舒服。",
         options:[
-          { title:"先把她哄得轻松一点", desc:"气氛先救回来", effect:{ support:2, lively:1 } },
-          { title:"带她出去透气", desc:"行动派", effect:{ lively:2, direct:1 } },
-          { title:"安静陪着，等她开口", desc:"给空间和陪伴", effect:{ calm:2, support:2 } },
-          { title:"帮她理问题，想办法解决", desc:"理性安抚", effect:{ logic:2, mature:1 } }
+          { title:"会吐槽、会接梗、会把场子带热", desc:"热闹互动型", scores:{ yanami:2, lemon:1 }, tags:["高频互动","有梗"]},
+          { title:"说话明确、态度直接、很少让你猜", desc:"直给型", scores:{ karen:2, riko:1 }, tags:["直给","不猜"]},
+          { title:"不一定多，但每句都很准", desc:"知性型", scores:{ chihaya:2, asami:1 }, tags:["准确","清醒"]},
+          { title:"安静里带点怪，越聊越上头", desc:"反差型", scores:{ yumeko:2, koto:1 }, tags:["反差","上头"]}
         ]
       },
       {
-        title:"4. 你喜欢怎样开始一段关系？",
-        tip:"节奏偏好很重要。",
+        title:"如果对方帮你解决了一个麻烦，你更吃哪种方式？",
+        tip:"这题看你最服哪种人。",
         options:[
-          { title:"从熟起来开始，自然变亲近", desc:"先相处再升温", effect:{ insight:1, home:1, lively:1 } },
-          { title:"有感觉就直接靠近", desc:"干脆主动", effect:{ direct:2, romantic:1 } },
-          { title:"慢慢确认信任后再靠近", desc:"安全感优先", effect:{ calm:2, support:1 } },
-          { title:"最好有点特别，别太模板", desc:"独特性优先", effect:{ mystery:2, romantic:1 } }
+          { title:"她一边说你笨，一边已经替你处理完了", desc:"嘴硬式救场", scores:{ yanami:2, hibari:1 }, tags:["救场","嘴硬"]},
+          { title:"她没多说，直接把事情替你办得漂漂亮亮", desc:"行动式可靠", scores:{ amai:2, kaju:1 }, tags:["行动","稳"]},
+          { title:"她会把来龙去脉讲清楚，让你彻底安心", desc:"逻辑式安定", scores:{ chihaya:2, asami:1 }, tags:["讲清楚","安心"]},
+          { title:"她会顺手把你情绪也一起哄好", desc:"成熟式照顾", scores:{ sayo:2, konami:1 }, tags:["情绪安抚","大人感"]}
         ]
       },
       {
-        title:"5. 你在关系里最在意什么？",
-        tip:"选你最核心的一条。",
+        title:"你更喜欢对象身上哪种‘麻烦感’？",
+        tip:"有的人就是会吃一点不省心。",
         options:[
-          { title:"相处时开心又有来有回", desc:"互动感", effect:{ lively:2, romantic:1 } },
-          { title:"喜欢和不喜欢都说得明白", desc:"明确感", effect:{ direct:2, logic:1 } },
-          { title:"会被认真对待和照顾", desc:"情绪价值", effect:{ support:2, home:1 } },
-          { title:"彼此靠谱，能走得长远", desc:"稳定性", effect:{ mature:2, logic:1 } }
+          { title:"嘴硬、会绕、但其实特别通透", desc:"难在不直说", scores:{ yanami:2, chihaya:1 }, tags:["绕一点","通透"]},
+          { title:"自己心里下雨，还在努力发太阳", desc:"难在太会扛", scores:{ lemon:2, komari:1 }, tags:["外亮内细","让人心疼"]},
+          { title:"不按常规出牌，让你永远摸不准", desc:"难在太特别", scores:{ yumeko:2, konami:1 }, tags:["不按套路","特别"]},
+          { title:"过于成熟，反而让你有点招架不住", desc:"难在太会", scores:{ sayo:2, hibari:1 }, tags:["成熟压制","从容"]}
         ]
       },
       {
-        title:"6. 你理想中的家庭氛围是？",
-        tip:"这题会明显影响结果。",
+        title:"你理想中的恋爱，不太像下面哪一种？",
+        tip:"选你最能接受的那种“反面”对应。",
         options:[
-          { title:"热热闹闹，饭桌上话很多", desc:"烟火气很强", effect:{ lively:2, home:1 } },
-          { title:"明亮健康，经常一起出门", desc:"有行动力", effect:{ lively:2, direct:1 } },
-          { title:"安静柔软，彼此会照顾", desc:"陪伴型", effect:{ calm:1, home:2, support:2 } },
-          { title:"有秩序、有分工、很省心", desc:"成熟稳定", effect:{ mature:2, logic:2, home:1 } }
+          { title:"太安静太没互动，我会先受不了", desc:"你需要热度", scores:{ yanami:2, karen:1 }, tags:["热度","互动"]},
+          { title:"太绕太猜，我会很累", desc:"你需要明确", scores:{ riko:2, karen:1 }, tags:["明确","少猜"]},
+          { title:"太飘太没生活感，我会没安全感", desc:"你需要落地", scores:{ kaju:2, komari:1 }, tags:["落地","安心"]},
+          { title:"太混乱太没边界，我不会长期待", desc:"你需要秩序", scores:{ chihaya:2, hibari:1 }, tags:["边界","秩序"]}
         ]
       },
       {
-        title:"7. 你更吃哪种“可爱”？",
-        tip:"魅力偏好题。",
+        title:"哪种眼神最容易让你扛不住？",
+        tip:"你更怕被怎样看着。",
         options:[
-          { title:"反应多、会闹、会吐槽", desc:"外放型", effect:{ lively:2, insight:1 } },
-          { title:"直率得很可爱", desc:"直球型", effect:{ direct:2 } },
-          { title:"小动作和细节很戳人", desc:"内敛型", effect:{ calm:2, support:1 } },
-          { title:"越看越特别的那种", desc:"反差型", effect:{ mystery:2, romantic:1 } }
+          { title:"像看穿你又不说破，只轻飘飘笑一下", desc:"危险洞察", scores:{ yanami:2, chihaya:1 }, tags:["被看穿","轻轻一笑"]},
+          { title:"像在光明正大地告诉你，她就是选你", desc:"正面偏爱", scores:{ karen:2, riko:1 }, tags:["选你","明着来"]},
+          { title:"像什么都没说，但一直默默把你放在心里", desc:"安静注视", scores:{ komari:2, kaju:1 }, tags:["默默在意","安静"]},
+          { title:"像已经把你盯上了，而且完全不打算藏", desc:"成熟锁定", scores:{ sayo:2, yumeko:1 }, tags:["锁定","压迫感"]}
         ]
       },
       {
-        title:"8. 旅行时你更看重什么？",
-        tip:"看长期相处偏好。",
+        title:"如果一起深夜散步，你更希望她一路是什么样？",
+        tip:"画面感题。",
         options:[
-          { title:"一路能聊，一路能吃", desc:"互动密度高", effect:{ lively:2, romantic:1 } },
-          { title:"想走就走，别太犹豫", desc:"果断型", effect:{ direct:2, lively:1 } },
-          { title:"舒服最重要，别排太满", desc:"松弛感", effect:{ calm:2, home:1 } },
-          { title:"提前规划，省心最重要", desc:"安排感", effect:{ logic:2, mature:1 } }
+          { title:"一路都有话，偶尔还会互损", desc:"熟人节奏", scores:{ yanami:2, koto:1 }, tags:["散步聊天","互损"]},
+          { title:"突然就很直白地说出心里话", desc:"直球夜谈", scores:{ karen:2, riko:1 }, tags:["心里话","直说"]},
+          { title:"陪着你慢慢走，安静也不会尴尬", desc:"静态陪伴", scores:{ komari:2, asami:1 }, tags:["不尴尬","静静陪着"]},
+          { title:"会一边掌控气氛，一边让你心跳上来", desc:"成熟带节奏", scores:{ sayo:2, yumeko:1 }, tags:["带节奏","心跳"]}
         ]
       },
       {
-        title:"9. 吵架后你更希望怎么和好？",
-        tip:"选最自然的方式。",
+        title:"你更适合被哪种人哄？",
+        tip:"情绪低潮时最有代表性。",
         options:[
-          { title:"找机会重新搭话", desc:"别一直僵着", effect:{ lively:1, insight:1, romantic:1 } },
-          { title:"有话直接说开", desc:"别拖", effect:{ direct:2, logic:1 } },
-          { title:"先冷静一下再谈", desc:"缓冲后沟通", effect:{ calm:2, mature:1 } },
-          { title:"从根源说清楚", desc:"结构性解决", effect:{ logic:2, mature:1 } }
+          { title:"会把你逗笑，让你先别想太多", desc:"气氛型安慰", scores:{ lemon:2, yanami:1 }, tags:["逗笑","先松口气"]},
+          { title:"会很坦率地告诉你‘我在这’", desc:"直接型安慰", scores:{ karen:2, riko:1 }, tags:["明确支持","靠近"]},
+          { title:"会安静地陪你，不逼你立刻说", desc:"陪伴型安慰", scores:{ komari:2, kaju:1 }, tags:["陪着你","不催"]},
+          { title:"会把你情绪和问题一起处理掉", desc:"成熟型安慰", scores:{ chihaya:2, sayo:1 }, tags:["理情绪","解决问题"]}
         ]
       },
       {
-        title:"10. 你对“撒娇”的态度更接近？",
-        tip:"别选最体面的。",
+        title:"你会更想把钥匙交给哪种人？",
+        tip:"这是信任题。",
         options:[
-          { title:"嘴上嫌，实际会心软", desc:"吃这一套", effect:{ romantic:1, insight:1, lively:1 } },
-          { title:"直白一点挺好", desc:"甜度可接受", effect:{ direct:1, romantic:2 } },
-          { title:"只要是真心的就很戳", desc:"真诚优先", effect:{ support:2, insight:1 } },
-          { title:"我更喜欢克制一点", desc:"边界感", effect:{ calm:1, mature:1, logic:1 } }
+          { title:"会把家里变得热闹又有人味的人", desc:"烟火型可信", scores:{ yanami:2, koto:1 }, tags:["有人味","烟火气"]},
+          { title:"会把你起居照顾得很妥帖的人", desc:"生活型可信", scores:{ kaju:2, komari:1 }, tags:["起居","照顾"]},
+          { title:"会把很多现实问题处理好的人", desc:"执行型可信", scores:{ hibari:2, amai:1 }, tags:["现实能力","稳"]},
+          { title:"会让你明知道危险还想靠近的人", desc:"魅力型失守", scores:{ sayo:2, yumeko:1 }, tags:["危险吸引","失守"]}
         ]
       },
       {
-        title:"11. 下面哪种反差最让你心动？",
-        tip:"选最戳你的那个。",
+        title:"下面哪种‘恋爱推进方式’你最能接受？",
+        tip:"你真正适合的节奏。",
         options:[
-          { title:"平时很闹，认真时却很敏锐", desc:"热闹外壳下有深度", effect:{ lively:1, insight:2 } },
-          { title:"平时很亮，脆弱时反而更真", desc:"阳光里藏纤细", effect:{ support:2, lively:1 } },
-          { title:"平时很安静，关键时刻很勇敢", desc:"慢热但真诚", effect:{ calm:2, mature:1 } },
-          { title:"越熟越怪，但也越上头", desc:"独特路线", effect:{ mystery:2, romantic:1 } }
+          { title:"先像损友，后来谁都离不开谁", desc:"熟人升温型", scores:{ yanami:2, lemon:1 }, tags:["熟人升温","日常变质"]},
+          { title:"喜欢就直接靠近，不拖时间", desc:"直球推进型", scores:{ karen:2, riko:1 }, tags:["不拖","靠近"]},
+          { title:"靠长期陪伴把关系一点点做深", desc:"慢热推进型", scores:{ komari:2, kaju:1 }, tags:["长期陪伴","做深"]},
+          { title:"靠成熟和拿捏让你不知不觉沦陷", desc:"成年推进型", scores:{ sayo:2, chihaya:1 }, tags:["拿捏","不知不觉"]}
         ]
       },
       {
-        title:"12. 你更吃哪种表达喜欢的方式？",
-        tip:"选你最容易被打动的。",
+        title:"如果对象赢了你一次，你更希望她怎么赢？",
+        tip:"看你接受哪种胜法。",
         options:[
-          { title:"嘴上别扭，行动却很明显", desc:"藏不住的在意", effect:{ insight:2, romantic:1 } },
-          { title:"喜欢就直接说", desc:"直球表达", effect:{ direct:2, romantic:1 } },
-          { title:"不说很多，但默默靠近", desc:"温吞但稳定", effect:{ calm:2, support:1 } },
-          { title:"方式很特别，一下记住", desc:"有记忆点", effect:{ mystery:2, romantic:1 } }
+          { title:"赢得明亮又堂堂正正，让人气不起来", desc:"坦荡型赢法", scores:{ karen:2, hibari:1 }, tags:["堂堂正正","明亮"]},
+          { title:"赢在懂你，比你还早看明白", desc:"通透型赢法", scores:{ yanami:2, chihaya:1 }, tags:["懂你","早看明白"]},
+          { title:"赢在耐心和长期投入", desc:"陪伴型赢法", scores:{ kaju:2, komari:1 }, tags:["耐心","长期"]},
+          { title:"赢在你明知危险还主动靠近", desc:"魅力型赢法", scores:{ sayo:2, yumeko:1 }, tags:["危险魅力","主动靠近"]}
         ]
       },
       {
-        title:"13. 你理想中的伴侣更像哪种？",
-        tip:"接近最终判断。",
+        title:"如果对方吃醋了，你更能接受哪种反应？",
+        tip:"偏冲突偏好。",
         options:[
-          { title:"会陪我闹，也懂我在想什么", desc:"热闹+洞察", effect:{ lively:1, insight:2, support:1 } },
-          { title:"开朗坦率，喜欢就靠近", desc:"生命力强", effect:{ lively:1, direct:2 } },
-          { title:"温柔细心，很会照顾人", desc:"安稳陪伴型", effect:{ calm:1, support:2, home:1 } },
-          { title:"成熟清醒，有自己的原则", desc:"长期稳定型", effect:{ mature:2, logic:2 } }
+          { title:"嘴上阴阳你一下，但其实在等你解释", desc:"拐弯型", scores:{ yanami:2, koto:1 }, tags:["嘴硬","等解释"]},
+          { title:"直接说出来，态度也很明白", desc:"明说型", scores:{ karen:2, riko:1 }, tags:["明说","不装"]},
+          { title:"安静下来，但之后会认真和你谈", desc:"慢热型", scores:{ komari:2, chihaya:1 }, tags:["认真谈","克制"]},
+          { title:"她根本不会吵，只会让你意识到自己要完了", desc:"成熟压制型", scores:{ sayo:2, yumeko:1 }, tags:["压制感","后劲"]}
         ]
       },
       {
-        title:"14. 如果把婚姻比作一种感觉，你更想要？",
-        tip:"选最想长期拥有的状态。",
+        title:"你更容易因为什么决定留在一个人身边？",
+        tip:"别选好听的，选你会留下来的理由。",
         options:[
-          { title:"每天都能一起笑出来", desc:"关系要有热度", effect:{ lively:2, romantic:1 } },
-          { title:"被很明确地偏爱", desc:"确认感很重要", effect:{ direct:2, support:1 } },
-          { title:"总有人在家里等你", desc:"家的安心感", effect:{ home:2, calm:1, support:1 } },
-          { title:"能并肩走很久", desc:"可持续关系", effect:{ mature:2, logic:2 } }
+          { title:"和她在一起，生活一直很有反应", desc:"你需要热度", scores:{ yanami:2, lemon:1 }, tags:["有反应","不闷"]},
+          { title:"她很明确地把你放在第一位", desc:"你需要偏爱", scores:{ karen:2, riko:1 }, tags:["偏爱","被选择"]},
+          { title:"她会把你认真地纳入未来生活", desc:"你需要落地", scores:{ kaju:2, asami:1 }, tags:["未来","生活"]},
+          { title:"她值得信任，和她在一起很稳", desc:"你需要可靠", scores:{ hibari:2, chihaya:1 }, tags:["信任","稳"]}
         ]
       },
       {
-        title:"15. 你收到礼物时最看重什么？",
-        tip:"看你对情感表达的接受方式。",
+        title:"哪种‘会想她’的理由最像你？",
+        tip:"心动来源题。",
         options:[
-          { title:"有趣、能一起玩", desc:"轻松互动", effect:{ lively:2, romantic:1 } },
-          { title:"她很直接地说‘我就是想送你’", desc:"明确偏爱", effect:{ direct:2 } },
-          { title:"礼物很贴合我的习惯", desc:"细节照顾", effect:{ support:2, insight:1 } },
-          { title:"礼物不寻常，很有个人风格", desc:"独特感", effect:{ mystery:2, romantic:1 } }
+          { title:"因为她总能把我聊开心", desc:"气氛记忆", scores:{ yanami:2, koto:1 }, tags:["会聊","开心"]},
+          { title:"因为她很坦率，喜欢就是喜欢", desc:"明确记忆", scores:{ karen:2, riko:1 }, tags:["坦率","喜欢"]},
+          { title:"因为她记得很多我没说出口的事", desc:"细节记忆", scores:{ komari:2, kaju:1 }, tags:["记得你","细节"]},
+          { title:"因为她太特别，根本忘不掉", desc:"反差记忆", scores:{ yumeko:2, sayo:1 }, tags:["特别","忘不掉"]}
         ]
       },
       {
-        title:"16. 你更想和哪种人一起看电影？",
-        tip:"选你最舒服的一种。",
+        title:"你更想和哪种人一起过普通的一天？",
+        tip:"普通的一天，其实最能测婚约对象。",
         options:[
-          { title:"会边看边吐槽，气氛超足", desc:"热闹型", effect:{ lively:2, insight:1 } },
-          { title:"看完马上直说喜欢不喜欢", desc:"直接型", effect:{ direct:2 } },
-          { title:"一起安静看完，再慢慢聊", desc:"静态陪伴型", effect:{ calm:2, support:1 } },
-          { title:"会从细节和结构分析整部片", desc:"思考型", effect:{ logic:2, mature:1 } }
+          { title:"会把平凡日子过得很热闹的人", desc:"日常不无聊", scores:{ yanami:2, lemon:1 }, tags:["普通日子的热闹","不无聊"]},
+          { title:"会把喜欢和态度说得很明白的人", desc:"关系很清楚", scores:{ karen:2, riko:1 }, tags:["关系清楚","不悬着"]},
+          { title:"会把照顾落到一天里的很多小地方", desc:"很生活", scores:{ kaju:2, komari:1 }, tags:["小地方","照顾"]},
+          { title:"会让一切都变得成熟、稳定、有秩序", desc:"你只要跟着她走", scores:{ hibari:2, chihaya:1 }, tags:["有秩序","稳定"]}
         ]
       },
       {
-        title:"17. 遇到节日时，你更喜欢怎么过？",
-        tip:"看你对仪式感的需求。",
+        title:"你更容易因为什么把一个人列入‘可以结婚’？",
+        tip:"更偏婚约感的一题。",
         options:[
-          { title:"热热闹闹地过", desc:"一起玩最重要", effect:{ lively:2, romantic:1 } },
-          { title:"喜欢就大大方方表达", desc:"直球型仪式感", effect:{ direct:2, romantic:1 } },
-          { title:"安静但认真地准备", desc:"温柔型仪式感", effect:{ calm:1, support:2 } },
-          { title:"计划好流程，过得体面稳当", desc:"成熟型仪式感", effect:{ mature:2, logic:1 } }
+          { title:"相处热闹，感情不容易降温", desc:"情绪浓度够", scores:{ yanami:2, karen:1 }, tags:["不降温","热度"]},
+          { title:"对方足够真诚，不用在关系里猜", desc:"透明度高", scores:{ riko:2, lemon:1 }, tags:["真诚","透明"]},
+          { title:"她会把家和你一起经营起来", desc:"共同生活感", scores:{ kaju:2, komari:1 }, tags:["经营生活","一起过"]},
+          { title:"她很成熟，很多现实问题能一起扛", desc:"现实适配度高", scores:{ hibari:2, sayo:1 }, tags:["现实适配","能扛事"]}
         ]
       },
       {
-        title:"18. 你会被哪种“靠近”打动？",
-        tip:"这是偏爱触发点。",
+        title:"如果一起熬夜，你更希望对方是什么样？",
+        tip:"深夜状态更像真相。",
         options:[
-          { title:"总能自然接上我的话", desc:"互动感", effect:{ lively:2, insight:1 } },
-          { title:"她就是很明确地靠近你", desc:"直接感", effect:{ direct:2 } },
-          { title:"她记住了我没说出口的东西", desc:"细节感", effect:{ support:2, insight:1 } },
-          { title:"她靠近的方式很特别", desc:"反差感", effect:{ mystery:2, romantic:1 } }
+          { title:"还在和你贫嘴，精神得很", desc:"热闹系同频", scores:{ yanami:2, koto:1 }, tags:["贫嘴","同频"]},
+          { title:"突然说很直的情话，让你彻底清醒", desc:"直球暴击", scores:{ karen:2, riko:1 }, tags:["情话","暴击"]},
+          { title:"会记得提醒你喝水、休息、别太伤身", desc:"照顾型熬夜", scores:{ kaju:2, komari:1 }, tags:["照顾","提醒"]},
+          { title:"她整个人像夜色一样，让你越来越危险", desc:"深夜魅力型", scores:{ sayo:2, yumeko:1 }, tags:["夜色感","危险"]}
         ]
       },
       {
-        title:"19. 你更希望另一半擅长什么？",
-        tip:"选最重要的一项。",
+        title:"你最容易因为什么卸下戒备？",
+        tip:"信任建立方式。",
         options:[
-          { title:"活跃气氛，不会冷场", desc:"互动力", effect:{ lively:2 } },
-          { title:"想法表达清楚，不内耗", desc:"沟通力", effect:{ direct:2, logic:1 } },
-          { title:"照顾人，记性好，细节稳", desc:"生活力", effect:{ support:2, home:1 } },
-          { title:"做事成熟，扛得住事", desc:"承担力", effect:{ mature:2 } }
+          { title:"对方能把我逗开，不让我一直绷着", desc:"情绪松弛", scores:{ lemon:2, yanami:1 }, tags:["松下来","被逗开"]},
+          { title:"对方态度直接，没有暧昧拉扯", desc:"不消耗", scores:{ karen:2, riko:1 }, tags:["不拉扯","明确"]},
+          { title:"对方很细心，不逼我立刻回应", desc:"被允许慢一点", scores:{ komari:2, asami:1 }, tags:["慢一点","细心"]},
+          { title:"对方成熟到让我觉得‘她会处理好’", desc:"大人感兜底", scores:{ sayo:2, hibari:1 }, tags:["兜底","成熟"]}
         ]
       },
       {
-        title:"20. 你在关系里更像哪一种？",
-        tip:"选你自己。",
+        title:"你更希望别人怎么介绍你的对象？",
+        tip:"旁观者视角题。",
         options:[
-          { title:"负责逗气氛的人", desc:"热场型", effect:{ lively:2 } },
-          { title:"有想法就会说的人", desc:"直给型", effect:{ direct:2 } },
-          { title:"会默默照顾的人", desc:"照顾型", effect:{ support:2, home:1 } },
-          { title:"比较冷静稳重的人", desc:"理性型", effect:{ mature:1, logic:2 } }
+          { title:"“她真的很会带气氛，也特别懂你。”", desc:"热闹与默契并存", scores:{ yanami:2, lemon:1 }, tags:["会带气氛","懂你"]},
+          { title:"“她喜欢你这件事，谁都看得出来。”", desc:"偏爱非常明显", scores:{ karen:2, riko:1 }, tags:["公开偏爱","明显"]},
+          { title:"“她很会照顾人，你会被养得很好。”", desc:"长期相处型", scores:{ kaju:2, komari:1 }, tags:["被照顾","养得很好"]},
+          { title:"“她很靠谱，你跟着她不会错。”", desc:"稳重保证型", scores:{ hibari:2, chihaya:1 }, tags:["不会错","靠谱"]}
         ]
       },
       {
-        title:"21. 如果对象比你更强势，你更倾向？",
-        tip:"看你对关系主导感的接受度。",
+        title:"你会更想被哪种方式偏心？",
+        tip:"偏心也是风格题。",
         options:[
-          { title:"只要相处开心就没问题", desc:"顺势相处", effect:{ lively:1, support:1 } },
-          { title:"我喜欢对方主动一点", desc:"吃明确感", effect:{ direct:2 } },
-          { title:"希望她强势但会照顾我", desc:"被接住很重要", effect:{ support:2, home:1 } },
-          { title:"我会欣赏有主见又靠谱的人", desc:"成熟感加分", effect:{ mature:2, logic:1 } }
+          { title:"热闹里也一直把你放在重点位置", desc:"存在感被照顾", scores:{ yanami:2, karen:1 }, tags:["存在感","被放重点"]},
+          { title:"她会明着替你说话、明着护你", desc:"态度型偏心", scores:{ karen:2, hibari:1 }, tags:["护着你","明着来"]},
+          { title:"她会在生活和细节上长期偏向你", desc:"日常型偏心", scores:{ kaju:2, komari:1 }, tags:["长期偏向","细节里偏爱"]},
+          { title:"她会用大人的余裕把你纳入她的掌控范围", desc:"成熟型偏心", scores:{ sayo:2, chihaya:1 }, tags:["余裕","掌控感"]}
         ]
       },
       {
-        title:"22. 你更喜欢哪种聊天方式？",
-        tip:"平时的交流偏好。",
+        title:"你更适合被哪种人追？",
+        tip:"主动方式题。",
         options:[
-          { title:"高频、热闹、有来有回", desc:"互动密集", effect:{ lively:2 } },
-          { title:"有话直说，少猜心思", desc:"明确交流", effect:{ direct:2, logic:1 } },
-          { title:"不用很多，但很有质量", desc:"慢热交流", effect:{ calm:2, insight:1 } },
-          { title:"偶尔聊点别人想不到的话题", desc:"独特交流", effect:{ mystery:2 } }
-        ]
-      },
-      {
-        title:"23. 雨天你更想和对方怎么待着？",
-        tip:"氛围偏好题。",
-        options:[
-          { title:"窝在一起吃东西聊天", desc:"温暖热闹", effect:{ lively:1, home:1, romantic:1 } },
-          { title:"突然决定出去走走", desc:"随性行动", effect:{ direct:1, lively:2 } },
-          { title:"安静待着，各做各的也舒服", desc:"静态陪伴", effect:{ calm:2, home:1 } },
-          { title:"把今天安排得井井有条", desc:"秩序感", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"24. 你最在意关系中的哪种安全感？",
-        tip:"安全感来源不同。",
-        options:[
-          { title:"总能聊得起来", desc:"互动安全感", effect:{ lively:2, insight:1 } },
-          { title:"喜欢会被明确表达", desc:"确认安全感", effect:{ direct:2, romantic:1 } },
-          { title:"有人照顾、有人惦记", desc:"生活安全感", effect:{ support:2, home:2 } },
-          { title:"问题能被冷静处理", desc:"逻辑安全感", effect:{ logic:2, mature:1 } }
-        ]
-      },
-      {
-        title:"25. 你会被哪种夸奖最打动？",
-        tip:"看你最被什么看见。",
-        options:[
-          { title:"‘和你在一起很开心’", desc:"气氛价值", effect:{ lively:2 } },
-          { title:"‘你真的很坦率/很真诚’", desc:"表达价值", effect:{ direct:2 } },
-          { title:"‘你很温柔，很会照顾人’", desc:"陪伴价值", effect:{ support:2, home:1 } },
-          { title:"‘你很可靠，很让人安心’", desc:"稳定价值", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"26. 你更想和另一半一起完成哪种事？",
-        tip:"看合作偏好。",
-        options:[
-          { title:"一起到处玩、制造回忆", desc:"热闹感", effect:{ lively:2, romantic:1 } },
-          { title:"一起冲动做决定", desc:"行动感", effect:{ direct:2 } },
-          { title:"一起布置生活、照顾日常", desc:"家感", effect:{ home:2, support:1 } },
-          { title:"一起规划未来", desc:"长期感", effect:{ mature:2, logic:2 } }
-        ]
-      },
-      {
-        title:"27. 你对“神秘感”的态度更像？",
-        tip:"不是每个人都吃这一套。",
-        options:[
-          { title:"我更喜欢好懂的人", desc:"透明轻松", effect:{ lively:1, direct:1 } },
-          { title:"神秘一点也行，但别绕", desc:"适度接受", effect:{ direct:1, mystery:1 } },
-          { title:"有一点藏着的东西会更迷人", desc:"慢慢靠近感", effect:{ calm:1, mystery:2 } },
-          { title:"越不可预测我越上头", desc:"反差上瘾型", effect:{ mystery:2, romantic:1 } }
-        ]
-      },
-      {
-        title:"28. 你更喜欢哪种日常小惊喜？",
-        tip:"偏好题。",
-        options:[
-          { title:"突然约你出去玩", desc:"活力型惊喜", effect:{ lively:2, direct:1 } },
-          { title:"突然对你说很直白的话", desc:"直球型惊喜", effect:{ direct:2, romantic:1 } },
-          { title:"悄悄把你需要的东西准备好", desc:"照顾型惊喜", effect:{ support:2, home:1 } },
-          { title:"送你一个很特别的小东西", desc:"独特型惊喜", effect:{ mystery:2, romantic:1 } }
-        ]
-      },
-      {
-        title:"29. 你希望对方在朋友面前是什么样？",
-        tip:"社交观感偏好。",
-        options:[
-          { title:"活跃、好相处、大家都喜欢", desc:"外放型", effect:{ lively:2 } },
-          { title:"说话直接，不装不绕", desc:"坦率型", effect:{ direct:2 } },
-          { title:"温和安静，但很有分量", desc:"内敛型", effect:{ calm:2, insight:1 } },
-          { title:"做事可靠，让人放心", desc:"成熟型", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"30. 你会怎么处理吃醋这件事？",
-        tip:"冲突处理风格。",
-        options:[
-          { title:"先闹一下再说", desc:"情绪有温度", effect:{ lively:2, romantic:1 } },
-          { title:"直接问清楚", desc:"不拖着", effect:{ direct:2, logic:1 } },
-          { title:"先自己消化，再表达", desc:"情绪缓冲", effect:{ calm:2, insight:1 } },
-          { title:"看整体情况，不轻易失控", desc:"成熟判断", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"31. 你更期待怎样的早晨？",
-        tip:"生活画面感。",
-        options:[
-          { title:"起床后就开始说个不停", desc:"热闹生活流", effect:{ lively:2, home:1 } },
-          { title:"对方很直接地催你起床", desc:"明确感", effect:{ direct:2 } },
-          { title:"有人安静地准备好早餐", desc:"照顾感", effect:{ support:2, home:2 } },
-          { title:"一切都安排得稳稳当当", desc:"秩序感", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"32. 你最想被怎样理解？",
-        tip:"深层需求题。",
-        options:[
-          { title:"理解我其实很爱热闹", desc:"被接住情绪", effect:{ lively:2, insight:1 } },
-          { title:"理解我不喜欢猜来猜去", desc:"被尊重表达", effect:{ direct:2, logic:1 } },
-          { title:"理解我其实很需要温柔", desc:"被照顾需求", effect:{ support:2, calm:1 } },
-          { title:"理解我看重稳定和长期", desc:"被理解原则", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"33. 你更喜欢怎样庆祝生日？",
-        tip:"仪式感方向。",
-        options:[
-          { title:"热热闹闹开开心心", desc:"氛围至上", effect:{ lively:2, romantic:1 } },
-          { title:"明确的偏爱表达", desc:"直球至上", effect:{ direct:2, romantic:1 } },
-          { title:"安静但非常用心", desc:"细节至上", effect:{ support:2, calm:1 } },
-          { title:"安排完美，不出差错", desc:"成熟至上", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"34. 如果对方发来很长一段消息，你会更在意什么？",
-        tip:"信息接受偏好。",
-        options:[
-          { title:"读起来有趣、很有她的风格", desc:"互动与氛围", effect:{ lively:2, insight:1 } },
-          { title:"表达得很清楚、很直接", desc:"明确与诚意", effect:{ direct:2 } },
-          { title:"字里行间都在关心你", desc:"治愈与照顾", effect:{ support:2, home:1 } },
-          { title:"逻辑清楚、重点分明", desc:"理性与可靠", effect:{ logic:2, mature:1 } }
-        ]
-      },
-      {
-        title:"35. 你在感情里更怕什么？",
-        tip:"排雷题。",
-        options:[
-          { title:"太无聊、没有互动", desc:"怕冷场", effect:{ lively:2 } },
-          { title:"什么都不说清楚", desc:"怕猜心", effect:{ direct:2, logic:1 } },
-          { title:"没有温度、没人惦记", desc:"怕被忽略", effect:{ support:2, home:1 } },
-          { title:"不稳定、没法长期走", desc:"怕失控", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"36. 你会对哪种短信秒回？",
-        tip:"本能反应题。",
-        options:[
-          { title:"很好笑、很有梗的", desc:"聊天快乐型", effect:{ lively:2 } },
-          { title:"很直接地说想你", desc:"明确偏爱型", effect:{ direct:2, romantic:1 } },
-          { title:"提醒你照顾自己", desc:"照顾型", effect:{ support:2, home:1 } },
-          { title:"有事说事、很靠谱的", desc:"稳重型", effect:{ logic:2, mature:1 } }
-        ]
-      },
-      {
-        title:"37. 你更相信哪种心动？",
-        tip:"看你认同的恋爱起点。",
-        options:[
-          { title:"聊着聊着就离不开了", desc:"互动生情", effect:{ lively:2, insight:1 } },
-          { title:"对方直接靠近让我确认", desc:"明确生情", effect:{ direct:2, romantic:1 } },
-          { title:"在被照顾的时候慢慢沦陷", desc:"陪伴生情", effect:{ support:2, home:1 } },
-          { title:"在长期相处中越来越认定", desc:"稳定生情", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"38. 哪种“会做饭”更让你心动？",
-        tip:"生活感偏好。",
-        options:[
-          { title:"做饭时气氛很热闹", desc:"一起开心", effect:{ lively:2, home:1 } },
-          { title:"会直接问你想吃什么", desc:"沟通明确", effect:{ direct:2 } },
-          { title:"默默记住你的口味", desc:"照顾入微", effect:{ support:2, insight:1 } },
-          { title:"有条不紊，收拾得很干净", desc:"成熟可靠", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"39. 你更适合哪种节奏的恋爱？",
-        tip:"节奏偏好再次确认。",
-        options:[
-          { title:"热闹、明快、一直有反馈", desc:"高互动", effect:{ lively:2 } },
-          { title:"喜欢就会马上推进", desc:"快直球", effect:{ direct:2 } },
-          { title:"慢一点，但很稳", desc:"慢热稳固", effect:{ calm:2, support:1 } },
-          { title:"成熟、克制、有分寸", desc:"长期理性", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"40. 你理想中的“被偏爱”是什么样？",
-        tip:"情感需求题。",
-        options:[
-          { title:"她会一直把气氛留给你", desc:"情绪陪伴", effect:{ lively:2, support:1 } },
-          { title:"她会直说‘我选你’", desc:"明确选择", effect:{ direct:2, romantic:1 } },
-          { title:"她会在细节上优先考虑你", desc:"生活照顾", effect:{ support:2, home:1 } },
-          { title:"她会把未来也算上你", desc:"长期承诺", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"41. 你会被哪种房间氛围吸引？",
-        tip:"对应人的气质偏好。",
-        options:[
-          { title:"热闹、零食多、很有生活气", desc:"烟火感", effect:{ lively:2, home:1 } },
-          { title:"清爽直接，东西摆得很明白", desc:"干脆感", effect:{ direct:2 } },
-          { title:"安静柔和，让人想久待", desc:"治愈感", effect:{ calm:2, support:1 } },
-          { title:"整洁有序，一看就很靠谱", desc:"成熟感", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"42. 你更喜欢哪种“陪你熬夜”？",
-        tip:"陪伴方式偏好。",
-        options:[
-          { title:"和你边聊边闹到很晚", desc:"热闹同频", effect:{ lively:2 } },
-          { title:"很直接地陪你说清心事", desc:"坦率陪伴", effect:{ direct:2, insight:1 } },
-          { title:"安静陪着，不逼你说话", desc:"静态陪伴", effect:{ calm:2, support:1 } },
-          { title:"会提醒你休息，并帮你理顺状态", desc:"成熟照顾", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"43. 当你状态不好时，你最想听见什么？",
-        tip:"偏好判断。",
-        options:[
-          { title:"“走，先别想那么多。”", desc:"把你带动起来", effect:{ lively:2, direct:1 } },
-          { title:"“有事就说，我在。”", desc:"明确支持", effect:{ direct:1, support:1 } },
-          { title:"“没关系，我会陪着你。”", desc:"温柔安抚", effect:{ support:2, calm:1 } },
-          { title:"“先把问题拆开，我们慢慢解决。”", desc:"理性安定", effect:{ logic:2, mature:1 } }
-        ]
-      },
-      {
-        title:"44. 你对“恋爱脑”的接受度是？",
-        tip:"不用政治正确。",
-        options:[
-          { title:"甜一点挺好的", desc:"吃恋爱氛围", effect:{ lively:1, romantic:2 } },
-          { title:"只要坦率我就能接受", desc:"明确表达更重要", effect:{ direct:2, romantic:1 } },
-          { title:"只要她是真心的就行", desc:"情感真实优先", effect:{ support:2 } },
-          { title:"我还是更偏理性和稳当", desc:"清醒长期优先", effect:{ mature:2, logic:2 } }
-        ]
-      },
-      {
-        title:"45. 如果一起做决定，你更希望对方？",
-        tip:"合作模式偏好。",
-        options:[
-          { title:"让过程轻松一点", desc:"开心优先", effect:{ lively:2 } },
-          { title:"说得明白，不拖泥带水", desc:"效率优先", effect:{ direct:2, logic:1 } },
-          { title:"先考虑彼此感受", desc:"照顾优先", effect:{ support:2, insight:1 } },
-          { title:"能综合判断，比较稳", desc:"成熟优先", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"46. 下面哪种夜晚最让你向往？",
-        tip:"氛围题。",
-        options:[
-          { title:"一起吃宵夜聊到很晚", desc:"热闹亲密", effect:{ lively:2, home:1 } },
-          { title:"她突然很直白地说喜欢你", desc:"直球夜晚", effect:{ direct:2, romantic:1 } },
-          { title:"安静靠着，各自放松", desc:"平静陪伴", effect:{ calm:2, support:1 } },
-          { title:"把未来认真聊一遍", desc:"长期主义", effect:{ mature:2, logic:2 } }
-        ]
-      },
-      {
-        title:"47. 你最容易对哪种“可靠”心动？",
-        tip:"可靠也有不同类型。",
-        options:[
-          { title:"她总能把气氛接住", desc:"社交可靠", effect:{ lively:2, insight:1 } },
-          { title:"她说到做到，很直接", desc:"执行可靠", effect:{ direct:2 } },
-          { title:"她总记得照顾你", desc:"生活可靠", effect:{ support:2, home:1 } },
-          { title:"她遇事冷静有判断", desc:"成熟可靠", effect:{ mature:2, logic:1 } }
-        ]
-      },
-      {
-        title:"48. 你更想和哪种人一起走很久？",
-        tip:"偏长期结果。",
-        options:[
-          { title:"让日常一直有意思的人", desc:"热度重要", effect:{ lively:2, romantic:1 } },
-          { title:"始终真诚、说话算话的人", desc:"明确重要", effect:{ direct:2, logic:1 } },
-          { title:"会把你照顾进生活里的人", desc:"家感重要", effect:{ support:2, home:2 } },
-          { title:"成熟清醒、越处越稳的人", desc:"长期重要", effect:{ mature:2, logic:2 } }
-        ]
-      },
-      {
-        title:"49. 你觉得最理想的默契是？",
-        tip:"看你追求哪种心意相通。",
-        options:[
-          { title:"一个眼神就知道能接话", desc:"气氛默契", effect:{ lively:2, insight:1 } },
-          { title:"很多事不用绕，直接懂", desc:"表达默契", effect:{ direct:2 } },
-          { title:"不用多说也能被照顾到", desc:"生活默契", effect:{ support:2, home:1 } },
-          { title:"遇事判断总在同一边", desc:"价值默契", effect:{ mature:1, logic:2 } }
-        ]
-      },
-      {
-        title:"50. 如果最后只剩一个理由，你想选怎样的人？",
-        tip:"最后一题式的底层偏好。",
-        options:[
-          { title:"她能让我笑出来", desc:"活力感", effect:{ lively:2, romantic:1 } },
-          { title:"她会明确地选择我", desc:"确认感", effect:{ direct:2, romantic:1 } },
-          { title:"她会把我放进她的生活里", desc:"安稳感", effect:{ support:2, home:2 } },
-          { title:"她值得我长期信任", desc:"可靠感", effect:{ mature:2, logic:2 } }
+          { title:"会一边和你闹一边慢慢渗透的人", desc:"日常渗透型", scores:{ yanami:2, lemon:1 }, tags:["慢慢渗透","熟起来"]},
+          { title:"喜欢就会直接出手的人", desc:"正面推进型", scores:{ karen:2, riko:1 }, tags:["直接出手","推进"]},
+          { title:"先陪着你，等你自己慢慢松下来的人", desc:"慢热等待型", scores:{ komari:2, kaju:1 }, tags:["陪着你","等你打开"]},
+          { title:"会让你自己意识到已经逃不掉的人", desc:"成熟拿捏型", scores:{ sayo:2, yumeko:1 }, tags:["逃不掉","拿捏"]}
         ]
       }
     ];
@@ -1082,6 +1091,7 @@
     let activeQuestions = [];
     let currentQuestion = 0;
     let answers = [];
+    let selectionKeywords = [];
 
     const startScreen = document.getElementById("start-screen");
     const quizScreen = document.getElementById("quiz-screen");
@@ -1107,7 +1117,7 @@
     const resultName = document.getElementById("result-name");
     const resultMatch = document.getElementById("result-match");
     const resultDesc = document.getElementById("result-desc");
-    const traitList = document.getElementById("trait-list");
+    const keywordList = document.getElementById("keyword-list");
     const posterCanvas = document.getElementById("poster-canvas");
 
     function showScreen(screen){
@@ -1125,27 +1135,32 @@
       return a;
     }
 
-    function pickRandomQuestions(pool, count){
-      return shuffle(pool).slice(0, count);
-    }
+    // 每位角色各抽 1 题 + 混合题 1 题 = 15 题
+    function buildQuestionSet(){
+      const result = [];
 
-    function stripQuestionNumber(title) {
-      return String(title).replace(/^\s*\d+[.、]\s*/, "");
+      Object.keys(anchorPools).forEach(charId => {
+        const picked = shuffle(anchorPools[charId])[0];
+        result.push(picked);
+      });
+
+      result.push(shuffle(mixedQuestions)[0]);
+
+      return shuffle(result);
     }
 
     function startQuiz(){
-      activeQuestions = pickRandomQuestions(questionPool, DRAW_COUNT);
+      activeQuestions = buildQuestionSet();
       currentQuestion = 0;
       answers = new Array(activeQuestions.length).fill(null);
+      selectionKeywords = [];
       showScreen(quizScreen);
       renderQuestion();
     }
 
     function renderQuestion(){
       const q = activeQuestions[currentQuestion];
-
-      // 修正：显示当前第几题，而不是题库原始编号
-      questionTitle.textContent = `${currentQuestion + 1}. ${stripQuestionNumber(q.title)}`;
+      questionTitle.textContent = `${currentQuestion + 1}. ${q.title}`;
       questionTip.textContent = q.tip;
 
       const percent = Math.round(((currentQuestion + 1) / activeQuestions.length) * 100);
@@ -1174,120 +1189,81 @@
       nextBtn.textContent = currentQuestion === activeQuestions.length - 1 ? "查看结果" : "下一题";
     }
 
-    function getUserTraits(){
-      const totals = {};
-      TRAITS.forEach(t => totals[t.key] = 0);
-
-      activeQuestions.forEach((q, idx) => {
-        const ans = answers[idx];
-        if (ans === null) return;
-        const effect = q.options[ans].effect;
-        Object.keys(effect).forEach(key => {
-          totals[key] += effect[key];
-        });
-      });
-
-      return totals;
-    }
-
-    function getTraitCaps() {
+    function getScoreResult(){
+      const scores = {};
       const caps = {};
-      TRAITS.forEach(t => caps[t.key] = 0);
+      const hitCounts = {};
 
-      activeQuestions.forEach(question => {
-        TRAITS.forEach(trait => {
-          let maxForThisQuestion = 0;
-          question.options.forEach(option => {
-            const val = option.effect?.[trait.key] || 0;
-            if (val > maxForThisQuestion) maxForThisQuestion = val;
+      characters.forEach(c => {
+        scores[c.id] = 0;
+        caps[c.id] = 0;
+        hitCounts[c.id] = 0;
+      });
+
+      activeQuestions.forEach((q, qIndex) => {
+        // 统计本题里每个角色的理论最高分，用于归一化
+        characters.forEach(c => {
+          let maxPoint = 0;
+          q.options.forEach(opt => {
+            const val = (opt.scores && opt.scores[c.id]) || 0;
+            if (val > maxPoint) maxPoint = val;
           });
-          caps[trait.key] += maxForThisQuestion;
+          caps[c.id] += maxPoint;
+        });
+
+        // 统计用户实际得分
+        const selectedIndex = answers[qIndex];
+        if (selectedIndex === null) return;
+
+        const chosen = q.options[selectedIndex];
+        Object.keys(chosen.scores || {}).forEach(charId => {
+          scores[charId] += chosen.scores[charId];
+          if (chosen.scores[charId] >= 2) hitCounts[charId] += 1;
         });
       });
-
-      return caps;
-    }
-
-    function normalizeUserTraits(user, caps){
-      const normalized = {};
-      TRAITS.forEach(t => {
-        const cap = caps[t.key] || 1;
-        normalized[t.key] = Math.round(((user[t.key] || 0) / cap) * 10);
-        normalized[t.key] = Math.max(0, Math.min(10, normalized[t.key]));
-      });
-      return normalized;
-    }
-
-    function meanAbsDiff(a, b){
-      let sum = 0;
-      TRAITS.forEach(t => {
-        sum += Math.abs((a[t.key] || 0) - (b[t.key] || 0));
-      });
-      return sum / TRAITS.length;
-    }
-
-    function cosineSimilarityCentered(a, b){
-      let dot = 0;
-      let normA = 0;
-      let normB = 0;
-
-      TRAITS.forEach(t => {
-        const av = (a[t.key] || 0) - 5;
-        const bv = (b[t.key] || 0) - 5;
-        dot += av * bv;
-        normA += av * av;
-        normB += bv * bv;
-      });
-
-      if (normA === 0 || normB === 0) return 0;
-      return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-    }
-
-    function getTopTraitKeys(profile, count = 3){
-      return TRAITS
-        .map(t => [t.key, profile[t.key] || 0])
-        .sort((a,b) => b[1] - a[1])
-        .slice(0, count)
-        .map(([key]) => key);
-    }
-
-    function calcRanking() {
-      const user = getUserTraits();
-      const caps = getTraitCaps();
-      const normalizedUser = normalizeUserTraits(user, caps);
-      const userTop = getTopTraitKeys(normalizedUser, 4);
 
       const ranking = characters.map(char => {
-        const cosine = cosineSimilarityCentered(normalizedUser, char.profile);
-        const cosineScore = ((cosine + 1) / 2) * 100;
+        const actual = scores[char.id] || 0;
+        const cap = caps[char.id] || 1;
+        const ratio = actual / cap; // 命中率
+        const support = Math.min(1, actual / 8); // 证据强度，防止“只中一次就封神”
+        const hitBonus = (hitCounts[char.id] || 0) * 2.2;
 
-        const diff = meanAbsDiff(normalizedUser, char.profile);
-        const closenessScore = Math.max(0, 100 - diff * 10);
-
-        let resonance = 0;
-        const charTop = getTopTraitKeys(char.profile, 4);
-
-        userTop.forEach(key => {
-          if (charTop.includes(key)) resonance += 1.8;
-        });
-
-        TRAITS.forEach(t => {
-          const u = normalizedUser[t.key] || 0;
-          const c = char.profile[t.key] || 0;
-          if (u >= 8 && c >= 8) resonance += 0.7;
-          if (u <= 2 && c <= 2) resonance += 0.2;
-        });
-
-        let match = cosineScore * 0.62 + closenessScore * 0.38 + resonance;
-        match = 55 + (match - 55) * 0.82;
+        let match = ratio * 78 + support * 14 + hitBonus;
 
         return {
           ...char,
-          match: Math.max(50, Math.min(97, Math.round(match)))
+          raw: actual,
+          cap,
+          ratio,
+          hitCount: hitCounts[char.id] || 0,
+          match: Math.max(35, Math.min(99, Math.round(match)))
         };
-      }).sort((a, b) => b.match - a.match);
+      }).sort((a, b) => {
+        if (b.match !== a.match) return b.match - a.match;
+        if (b.raw !== a.raw) return b.raw - a.raw;
+        return b.hitCount - a.hitCount;
+      });
 
-      return { ranking, user, normalizedUser, caps };
+      return { ranking, scores, caps, hitCounts };
+    }
+
+    function collectKeywords(){
+      const pool = [];
+      activeQuestions.forEach((q, idx) => {
+        const ans = answers[idx];
+        if (ans === null) return;
+        const option = q.options[ans];
+        (option.tags || []).forEach(tag => pool.push(tag));
+      });
+
+      const counter = {};
+      pool.forEach(tag => counter[tag] = (counter[tag] || 0) + 1);
+
+      return Object.entries(counter)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4)
+        .map(([tag]) => tag);
     }
 
     function renderResultImage(src){
@@ -1307,31 +1283,28 @@
     }
 
     function showResult(){
-      const { ranking, user } = calcRanking();
+      const { ranking } = getScoreResult();
       const winner = ranking[0];
+      selectionKeywords = collectKeywords();
 
       renderResultImage(winner.image);
       resultName.textContent = winner.name;
       resultMatch.textContent = `最契合你的婚约对象 · ${winner.match}%`;
       resultDesc.textContent = winner.desc;
 
-      traitList.innerHTML = "";
-      const traitEntries = Object.entries(user).sort((a, b) => b[1] - a[1]).slice(0, 6);
-      const max = traitEntries[0]?.[1] || 1;
+      keywordList.innerHTML = "";
+      selectionKeywords.forEach(tag => {
+        const div = document.createElement("div");
+        div.className = "keyword-item";
+        div.textContent = `本次选择关键词：${tag}`;
+        keywordList.appendChild(div);
+      });
 
-      traitEntries.forEach(([key, val]) => {
-        const label = TRAITS.find(t => t.key === key)?.label || key;
-        const pct = Math.round((val / max) * 100);
-        const item = document.createElement("div");
-        item.className = "trait-item";
-        item.innerHTML = `
-          <div class="bar-top">
-            <div>${label}</div>
-            <div>${pct}%</div>
-          </div>
-          <div class="bar"><span style="width:${pct}%"></span></div>
-        `;
-        traitList.appendChild(item);
+      winner.tags.forEach(tag => {
+        const div = document.createElement("div");
+        div.className = "keyword-item";
+        div.textContent = `她的契合关键词：${tag}`;
+        keywordList.appendChild(div);
       });
 
       showScreen(resultScreen);
@@ -1361,13 +1334,9 @@
     }
 
     function buildResultText(){
-      const { ranking, user } = calcRanking();
+      const { ranking } = getScoreResult();
       const winner = ranking[0];
-      const topTraits = Object.entries(user)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 4)
-        .map(([key]) => TRAITS.find(t => t.key === key)?.label || key)
-        .join("、");
+      const keys = collectKeywords().join("、");
 
       return `初晓CompleX
 
@@ -1375,7 +1344,7 @@
 
 最契合你的婚约对象：${winner.name}
 契合度：${winner.match}%
-你的倾向：${topTraits}
+你的本次关键词：${keys}
 
 解析：
 ${winner.desc}`;
@@ -1410,8 +1379,9 @@ ${winner.desc}`;
     }
 
     async function downloadPoster(){
-      const { ranking, user } = calcRanking();
+      const { ranking } = getScoreResult();
       const winner = ranking[0];
+      const keys = collectKeywords().join(" / ");
       const ctx = posterCanvas.getContext("2d");
 
       ctx.clearRect(0, 0, posterCanvas.width, posterCanvas.height);
@@ -1473,15 +1443,9 @@ ${winner.desc}`;
       ctx.fillText("最契合你的婚约对象", 500, 392);
       ctx.fillText(`契合度 ${winner.match}%`, 500, 440);
 
-      const topTraits = Object.entries(user)
-        .sort((a,b)=>b[1]-a[1])
-        .slice(0,4)
-        .map(([key]) => TRAITS.find(t => t.key === key)?.label || key)
-        .join(" / ");
-
       ctx.fillStyle = "#6e768b";
       ctx.font = "24px Microsoft YaHei";
-      ctx.fillText(`你的倾向：${topTraits}`, 500, 495);
+      ctx.fillText(`本次关键词：${keys}`, 500, 495);
 
       ctx.fillStyle = "#465066";
       ctx.font = "bold 34px Microsoft YaHei";
