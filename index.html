@@ -16,6 +16,7 @@
       --shadow:0 18px 48px rgba(91,111,160,.12);
       --radius:28px;
     }
+
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
     body{
@@ -185,6 +186,7 @@
       color:#70788b;
       line-height:1.75;
     }
+
     .quiz-actions{
       display:flex;
       justify-content:space-between;
@@ -302,10 +304,104 @@
 
     .poster-canvas{display:none;}
 
+    /* 隐藏开发者模式 */
+    .dev-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(15,18,30,.35);
+      backdrop-filter:blur(4px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
+    .dev-overlay.active{
+      display:flex;
+    }
+    .dev-panel{
+      width:min(920px, 100%);
+      max-height:88vh;
+      overflow:auto;
+      background:rgba(255,255,255,.96);
+      border:1px solid #e8edf8;
+      border-radius:24px;
+      box-shadow:0 24px 60px rgba(30,40,80,.22);
+      padding:22px;
+    }
+    .dev-title{
+      margin:0 0 8px;
+      font-size:24px;
+      color:#ff5c9e;
+    }
+    .dev-sub{
+      margin:0 0 16px;
+      color:#6d7588;
+      font-size:14px;
+      line-height:1.8;
+    }
+    .dev-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .dev-grid{
+      display:grid;
+      gap:10px;
+    }
+    .dev-row{
+      display:grid;
+      grid-template-columns:minmax(140px, 220px) 1fr 90px 90px;
+      gap:12px;
+      align-items:center;
+      background:#fff;
+      border:1px solid #edf1f8;
+      border-radius:16px;
+      padding:12px 14px;
+    }
+    .dev-name{
+      font-weight:700;
+      color:#394156;
+    }
+    .dev-bar{
+      width:100%;
+      height:10px;
+      background:#edf2f8;
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .dev-bar span{
+      display:block;
+      height:100%;
+      background:linear-gradient(90deg,#ff90c1,#97b8ff);
+      border-radius:999px;
+      width:0%;
+    }
+    .dev-num{
+      text-align:right;
+      color:#5f6981;
+      font-size:14px;
+    }
+    .dev-note{
+      margin-top:14px;
+      font-size:13px;
+      color:#8a91a3;
+      line-height:1.8;
+    }
+
     @media (max-width:860px){
       .result-grid{grid-template-columns:1fr;}
       .q-title{font-size:23px;}
       .hero{min-height:68vh;}
+    }
+    @media (max-width:760px){
+      .dev-row{
+        grid-template-columns:1fr;
+      }
+      .dev-num{
+        text-align:left;
+      }
     }
   </style>
 </head>
@@ -318,6 +414,7 @@
             <div class="brand">初晓CompleX</div>
             <h1 class="hero-title">败北女主太多了！</h1>
             <p class="hero-sub">从 50 题题库中抽取 15 题，测出最契合你的婚约对象。</p>
+            <p class="hero-note">本版改为“角色证据制”题库：每位角色都有专属题池，每次都会被公平纳入本轮测试。</p>
             <button id="start-btn" class="hero-btn">开始测试</button>
           </div>
         </div>
@@ -376,6 +473,32 @@
       </section>
 
       <canvas id="poster-canvas" class="poster-canvas" width="1080" height="1460"></canvas>
+    </div>
+  </div>
+
+  <!-- 隐藏开发者模式 -->
+  <div id="dev-overlay" class="dev-overlay">
+    <div class="dev-panel">
+      <h3 class="dev-title">开发者模式</h3>
+      <p class="dev-sub">
+        隐藏入口已启用。这里可以模拟大量随机作答，用来检查各角色出现频率是否均衡。<br>
+        再按一次触发键，或点“关闭面板”即可退出。
+      </p>
+
+      <div class="dev-actions">
+        <button class="btn btn-sub" id="dev-run-1000">模拟 1000 次</button>
+        <button class="btn btn-sub" id="dev-run-3000">模拟 3000 次</button>
+        <button class="btn btn-main" id="dev-run-10000">模拟 10000 次</button>
+        <button class="btn btn-sub" id="dev-close">关闭面板</button>
+      </div>
+
+      <div id="dev-summary" class="dev-sub">尚未运行模拟。</div>
+      <div id="dev-grid" class="dev-grid"></div>
+
+      <div class="dev-note">
+        说明：模拟方式为“每轮重新抽 15 题 + 每题随机选 1 个选项”，统计谁成为第一名。<br>
+        理论平均值约为 14 位角色各占 7.14% 左右。高太多或低太多都说明题库/分值还要继续调。
+      </div>
     </div>
   </div>
 
@@ -572,7 +695,7 @@
             { title:"明明自己也会难过，但还是想把气氛带起来的人", desc:"发光不是因为不脆弱", scores:{ lemon:3, yanami:1 }, tags:["阳光","纤细"] },
             { title:"喜欢就直接出击，完全不藏着的人", desc:"坦荡到让人招架不住", scores:{ karen:3, riko:1 }, tags:["主动","直球"] },
             { title:"像会长那样干净利落、站在那就很正的人", desc:"可靠又清爽", scores:{ hibari:3, amai:1 }, tags:["正感","可靠"] },
-            { title:"有点脱线，没什么距离，像大孩子一样的人", desc:"轻松又不费力", scores:{ konami:3, asami:1 }, tags:["松弛","没距离"] }
+            { title:"有点脱线，没什么距离，像很好接近的大人一样", desc:"轻松又不费力", scores:{ konami:3, asami:1 }, tags:["松弛","没距离"] }
           ]
         },
         {
@@ -604,7 +727,7 @@
           options:[
             { title:"不太会说，但会在关键时刻拿出勇气", desc:"安静里带决心", scores:{ komari:3, amai:1 }, tags:["慢热","有勇气"] },
             { title:"会把你放进她的日常里，一点点照顾你", desc:"长期型喜欢", scores:{ kaju:3, asami:1 }, tags:["生活感","家"] },
-            { title:"表面随意，实则看你看得很透", desc:"不是笨，是不说", scores:{ yanami:3, chihaya:1 }, tags:["被理解","洞察"] },
+            { title:"表面随意，实则总能精准戳中你的心事", desc:"不是笨，是不说", scores:{ yanami:3, chihaya:1 }, tags:["被理解","洞察"] },
             { title:"很特别、很贴近，让你老是忍不住想她下一步", desc:"不按套路", scores:{ yumeko:3, koto:1 }, tags:["反差","特别"] }
           ]
         }
@@ -687,7 +810,7 @@
             { title:"能扛事、能安排、站出来就让人安心的人", desc:"典型可靠型", scores:{ hibari:3, amai:1 }, tags:["可靠","会长感"] },
             { title:"脑子清楚、讲话有逻辑、相处边界很舒服的人", desc:"知性型稳定", scores:{ chihaya:3, asami:1 }, tags:["清醒","边界感"] },
             { title:"会把你的生活状态一起照顾进去的人", desc:"生活稳定型", scores:{ kaju:3, komari:1 }, tags:["照顾","长期"] },
-            { title:"表面热闹，实际很会观察局面的人", desc:"气氛掌控型", scores:{ yanami:3, karen:1 }, tags:["会看场面","会接住"] }
+            { title:"表面热闹，实际上很会观察局面的人", desc:"气氛掌控型", scores:{ yanami:3, karen:1 }, tags:["会看场面","会接住"] }
           ]
         },
         {
@@ -864,14 +987,13 @@
       ]
     };
 
-    // 22 道混合题
     const mixedQuestions = [
       {
         title:"如果你和对象第一次一起吃饭，最希望她是什么状态？",
         tip:"四种状态都不是标准答案。",
         options:[
-          { title:"很会接话，饭还没吃完就熟起来了", desc:"你吃的是气氛", scores:{ yanami:2, koto:1 } , tags:["接话","熟得快"]},
-          { title:"喜欢就会直接表达，不让场面悬着", desc:"你吃的是明确", scores:{ karen:2, riko:1 }, tags:["明确","不悬着"]},
+          { title:"很会接话，饭还没吃完就熟起来了", desc:"你吃的是气氛", scores:{ yanami:2, koto:1 }, tags:["接话","熟得快"]},
+          { title:"会直接把喜欢和态度说得很清楚，不让场面悬着", desc:"你吃的是明确", scores:{ karen:2, riko:1 }, tags:["明确","不悬着"]},
           { title:"会默默注意你喜欢什么、不喜欢什么", desc:"你吃的是细节", scores:{ komari:2, kaju:1 }, tags:["细节","被在意"]},
           { title:"会自然掌控节奏，让你完全不尴尬", desc:"你吃的是成熟", scores:{ sayo:2, chihaya:1 }, tags:["掌控感","不尴尬"]}
         ]
@@ -957,7 +1079,7 @@
         ]
       },
       {
-        title:"你会更想把钥匙交给哪种人？",
+        title:"你更想把钥匙交给哪种人？",
         tip:"这是信任题。",
         options:[
           { title:"会把家里变得热闹又有人味的人", desc:"烟火型可信", scores:{ yanami:2, koto:1 }, tags:["有人味","烟火气"]},
@@ -1135,7 +1257,6 @@
       return a;
     }
 
-    // 每位角色各抽 1 题 + 混合题 1 题 = 15 题
     function buildQuestionSet(){
       const result = [];
 
@@ -1201,7 +1322,6 @@
       });
 
       activeQuestions.forEach((q, qIndex) => {
-        // 统计本题里每个角色的理论最高分，用于归一化
         characters.forEach(c => {
           let maxPoint = 0;
           q.options.forEach(opt => {
@@ -1211,7 +1331,6 @@
           caps[c.id] += maxPoint;
         });
 
-        // 统计用户实际得分
         const selectedIndex = answers[qIndex];
         if (selectedIndex === null) return;
 
@@ -1225,8 +1344,8 @@
       const ranking = characters.map(char => {
         const actual = scores[char.id] || 0;
         const cap = caps[char.id] || 1;
-        const ratio = actual / cap; // 命中率
-        const support = Math.min(1, actual / 8); // 证据强度，防止“只中一次就封神”
+        const ratio = actual / cap;
+        const support = Math.min(1, actual / 8);
         const hitBonus = (hitCounts[char.id] || 0) * 2.2;
 
         let match = ratio * 78 + support * 14 + hitBonus;
@@ -1485,6 +1604,193 @@ ${winner.desc}`;
     restartMidBtn.addEventListener("click", restartAll);
     copyBtn.addEventListener("click", copyResult);
     downloadBtn.addEventListener("click", downloadPoster);
+
+    // ===== 隐藏开发者模式 =====
+    const devOverlay = document.getElementById("dev-overlay");
+    const devGrid = document.getElementById("dev-grid");
+    const devSummary = document.getElementById("dev-summary");
+    const devRun1000 = document.getElementById("dev-run-1000");
+    const devRun3000 = document.getElementById("dev-run-3000");
+    const devRun10000 = document.getElementById("dev-run-10000");
+    const devClose = document.getElementById("dev-close");
+
+    const DEV_CODE = ["i", "x", "c", "x"];
+    let devInputBuffer = [];
+
+    function toggleDevPanel(force) {
+      const shouldOpen = typeof force === "boolean"
+        ? force
+        : !devOverlay.classList.contains("active");
+
+      if (shouldOpen) {
+        devOverlay.classList.add("active");
+      } else {
+        devOverlay.classList.remove("active");
+      }
+    }
+
+    function handleDevCodeInput(key) {
+      devInputBuffer.push(key.toLowerCase());
+
+      if (devInputBuffer.length > DEV_CODE.length) {
+        devInputBuffer.shift();
+      }
+
+      const matched = DEV_CODE.every((k, i) => devInputBuffer[i] === k);
+      if (matched) {
+        toggleDevPanel();
+        devInputBuffer = [];
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+      if (!/^[a-zA-Z]$/.test(e.key)) return;
+      handleDevCodeInput(e.key);
+    });
+
+    devClose.addEventListener("click", () => toggleDevPanel(false));
+
+    devOverlay.addEventListener("click", (e) => {
+      if (e.target === devOverlay) {
+        toggleDevPanel(false);
+      }
+    });
+
+    function buildQuestionSetForSim(){
+      const result = [];
+
+      Object.keys(anchorPools).forEach(charId => {
+        const picked = shuffle(anchorPools[charId])[0];
+        result.push(picked);
+      });
+
+      result.push(shuffle(mixedQuestions)[0]);
+
+      return shuffle(result);
+    }
+
+    function getSimResult(questions, picks){
+      const scores = {};
+      const caps = {};
+      const hitCounts = {};
+
+      characters.forEach(c => {
+        scores[c.id] = 0;
+        caps[c.id] = 0;
+        hitCounts[c.id] = 0;
+      });
+
+      questions.forEach((q, qIndex) => {
+        characters.forEach(c => {
+          let maxPoint = 0;
+          q.options.forEach(opt => {
+            const val = (opt.scores && opt.scores[c.id]) || 0;
+            if (val > maxPoint) maxPoint = val;
+          });
+          caps[c.id] += maxPoint;
+        });
+
+        const selectedIndex = picks[qIndex];
+        const chosen = q.options[selectedIndex];
+
+        Object.keys(chosen.scores || {}).forEach(charId => {
+          scores[charId] += chosen.scores[charId];
+          if (chosen.scores[charId] >= 2) hitCounts[charId] += 1;
+        });
+      });
+
+      const ranking = characters.map(char => {
+        const actual = scores[char.id] || 0;
+        const cap = caps[char.id] || 1;
+        const ratio = actual / cap;
+        const support = Math.min(1, actual / 8);
+        const hitBonus = (hitCounts[char.id] || 0) * 2.2;
+
+        let match = ratio * 78 + support * 14 + hitBonus;
+
+        return {
+          ...char,
+          raw: actual,
+          cap,
+          ratio,
+          hitCount: hitCounts[char.id] || 0,
+          match: Math.max(35, Math.min(99, Math.round(match)))
+        };
+      }).sort((a, b) => {
+        if (b.match !== a.match) return b.match - a.match;
+        if (b.raw !== a.raw) return b.raw - a.raw;
+        return b.hitCount - a.hitCount;
+      });
+
+      return ranking[0];
+    }
+
+    function simulateMany(rounds = 1000){
+      const winCount = {};
+      characters.forEach(c => winCount[c.id] = 0);
+
+      for (let i = 0; i < rounds; i++) {
+        const simQuestions = buildQuestionSetForSim();
+        const simAnswers = simQuestions.map(q => Math.floor(Math.random() * q.options.length));
+        const winner = getSimResult(simQuestions, simAnswers);
+        winCount[winner.id]++;
+      }
+
+      return characters
+        .map(char => {
+          const count = winCount[char.id] || 0;
+          const percent = ((count / rounds) * 100).toFixed(2);
+          return {
+            ...char,
+            count,
+            percent: Number(percent)
+          };
+        })
+        .sort((a, b) => b.count - a.count);
+    }
+
+    function renderDevResult(rounds, result){
+      devGrid.innerHTML = "";
+
+      const maxPercent = result[0]?.percent || 1;
+      const avg = 100 / characters.length;
+      const high = result[0];
+      const low = result[result.length - 1];
+
+      devSummary.innerHTML =
+        `已模拟 <strong>${rounds}</strong> 次。` +
+        ` 理论平均值约为 <strong>${avg.toFixed(2)}%</strong> / 每位角色。` +
+        ` 当前最高：<strong>${high.name}</strong>（${high.percent}%）` +
+        `，最低：<strong>${low.name}</strong>（${low.percent}%）。`;
+
+      result.forEach(item => {
+        const width = maxPercent > 0 ? (item.percent / maxPercent) * 100 : 0;
+        const row = document.createElement("div");
+        row.className = "dev-row";
+        row.innerHTML = `
+          <div class="dev-name">${item.name}</div>
+          <div class="dev-bar"><span style="width:${width}%"></span></div>
+          <div class="dev-num">${item.count} 次</div>
+          <div class="dev-num">${item.percent}%</div>
+        `;
+        devGrid.appendChild(row);
+      });
+    }
+
+    function runDevSimulation(rounds){
+      devSummary.innerHTML = `正在模拟 ${rounds} 次，请稍候……`;
+      devGrid.innerHTML = "";
+
+      setTimeout(() => {
+        const result = simulateMany(rounds);
+        renderDevResult(rounds, result);
+      }, 30);
+    }
+
+    devRun1000.addEventListener("click", () => runDevSimulation(1000));
+    devRun3000.addEventListener("click", () => runDevSimulation(3000));
+    devRun10000.addEventListener("click", () => runDevSimulation(10000));
   </script>
 </body>
 </html>
